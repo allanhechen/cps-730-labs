@@ -8,7 +8,7 @@ import fs from 'fs';
 const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
 import path from 'path';
 
-let db, dbAll, dbRun;
+let db: sqlite3.Database;
 
 function init() {
     const dirName = path.dirname(location);
