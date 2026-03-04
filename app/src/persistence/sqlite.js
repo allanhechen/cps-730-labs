@@ -1,11 +1,17 @@
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
+// TODO: use dynamic import or bootstrap
+import dotenv from 'dotenv';
+dotenv.config();
+
+import sqlite3 from 'sqlite3';
+sqlite3.verbose();
+import fs from 'fs';
 const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
+import path from 'path';
 
 let db, dbAll, dbRun;
 
 function init() {
-    const dirName = require('path').dirname(location);
+    const dirName = path.dirname(location);
     if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName, { recursive: true });
     }
@@ -102,7 +108,7 @@ async function removeItem(id) {
     });
 }
 
-module.exports = {
+export default {
     init,
     teardown,
     getItems,
