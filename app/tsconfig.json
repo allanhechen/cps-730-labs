@@ -10,7 +10,7 @@
         "module": "es2022",
         "target": "esnext",
         "moduleResolution": "bundler",
-        "types": [],
+        "types": ["node", "jest"],
         // For nodejs:
         // "lib": ["esnext"],
         // "types": ["node"],
@@ -42,5 +42,5 @@
         "moduleDetection": "force",
         "skipLibCheck": true
     },
-    "include": ["src/**/*"]
+    "include": ["src/**/*", "spec/**/*"]
 }
