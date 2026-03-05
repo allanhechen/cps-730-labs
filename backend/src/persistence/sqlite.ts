@@ -44,6 +44,8 @@ async function getItems() {
     return rows.map((item) =>
         Object.assign({}, item, {
             completed: (item.completed as any) === 1,
+            categories: [],
+            utcDueDate: item.utcDueDate === null ? undefined : item.utcDueDate,
         }),
     );
 }
@@ -55,6 +57,8 @@ async function getItem(id: Todo['id']) {
     return rows.map((item) =>
         Object.assign({}, item, {
             completed: (item.completed as any) === 1,
+            categories: [],
+            utcDueDate: item.utcDueDate === null ? undefined : item.utcDueDate,
         }),
     )[0];
 }
@@ -76,8 +80,14 @@ async function storeItem(item: Todo): Promise<void> {
 // TODO: add category support in query
 async function updateItem(id: Todo['id'], item: Todo): Promise<void> {
     await db.run(
-        'UPDATE todo_items SET name=?, completed=?, priority=?, utcDueDate=?, WHERE id = ?',
-        [item.name, item.completed ? 1 : 0, id, item.priority, item.utcDueDate],
+        'UPDATE todo_items SET name=?, completed=?, priority=?, utcDueDate=? WHERE id = ?',
+        [
+            item.name,
+            item.completed ? 1 : 0,
+            item.priority,
+            item.utcDueDate,
+            id,
+        ],
     );
 }
 

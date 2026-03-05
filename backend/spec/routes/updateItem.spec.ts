@@ -31,8 +31,12 @@ test('it updates items correctly', async () => {
 
     expect(db.updateItem).toHaveBeenCalledTimes(1);
     expect(db.updateItem).toHaveBeenCalledWith(req.params.id, {
+        id: req.params.id,
         name: 'New title',
         completed: false,
+        categories: [],
+        priority: Priority.NONE,
+        utcDueDate: undefined,
     });
 
     expect(db.getItem).toHaveBeenCalledTimes(1);
