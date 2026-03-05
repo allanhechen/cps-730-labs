@@ -7,7 +7,6 @@ import getCategories from './routes/getCategories';
 import addCategory from './routes/addCategory';
 import addItemToCategory from './routes/addItemToCategory';
 import removeItemFromCategory from './routes/removeItemFromCategory';
-import getPriorities from './routes/getPriorities';
 import updateItemPriority from './routes/updateItemPriority';
 import cors from 'cors';
 
@@ -32,7 +31,6 @@ app.post('/categories', addCategory);
 app.post('/items/:itemId/categories', addItemToCategory);
 app.delete('/items/:itemId/categories', removeItemFromCategory);
 
-app.get('/priorities', getPriorities);
 app.put('/items/:id/priority', updateItemPriority);
 
 db.init()

@@ -1,8 +1,16 @@
-import type { Request, Response } from 'express';
+import { Priority, type Todo } from '@todo-app/shared';
 import db from '../../src/persistence';
 import getItems from '../../src/routes/getItems';
 
-const ITEMS = [{ id: 12345 }];
+const ITEMS: Todo[] = [
+    {
+        id: '12345',
+        name: 'test',
+        completed: false,
+        categories: [],
+        priority: Priority.NONE,
+    },
+];
 
 jest.mock('../../src/persistence', () => ({
     __esModule: true,

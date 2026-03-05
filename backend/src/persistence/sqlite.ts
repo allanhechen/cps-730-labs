@@ -207,15 +207,6 @@ async function removeItem(id: Todo['id']): Promise<void> {
     await db.run('DELETE FROM todo_items WHERE id = ?', [id]);
 }
 
-async function getPriorities() {
-    return Object.entries(Priority)
-        .filter(([key]) => isNaN(Number(key)))
-        .map(([name, id]) => ({
-            id: id as number,
-            name,
-        }));
-}
-
 async function updateItemPriority(
     id: Todo['id'],
     priority: Priority,
@@ -238,6 +229,5 @@ export default {
     addCategory,
     addItemToCategory,
     removeItemFromCategory,
-    getPriorities,
     updateItemPriority,
 };
