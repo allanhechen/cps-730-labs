@@ -6,7 +6,7 @@ site_author: Docker
 # Repository
 repo_name: docker/getting-started
 repo_url: https://github.com/docker/getting-started
-edit_uri: ""
+edit_uri: ''
 
 # Copyright
 copyright: 'Copyright &copy; 2020-2022 Docker'

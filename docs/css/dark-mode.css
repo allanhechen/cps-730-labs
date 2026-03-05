@@ -66,7 +66,7 @@
   }
   .md-typeset code {
     color: white !important;
-/*  box-shadow: 0.29412em 0 0 hsla(0, 0%, 100%, 0.07),
+    /*  box-shadow: 0.29412em 0 0 hsla(0, 0%, 100%, 0.07),
     -0.29412em 0 0 hsla(0, 0%, 100%, 0.1);*/
   }
   .md-typeset a code {
@@ -281,13 +281,18 @@
   .md-clipboard:before {
     color: rgba(255, 255, 255, 0.31);
   }
-  .codehilite:hover .md-clipboard:before, .md-typeset .highlight:hover .md-clipboard:before, pre:hover .md-clipboard:before {
+  .codehilite:hover .md-clipboard:before,
+  .md-typeset .highlight:hover .md-clipboard:before,
+  pre:hover .md-clipboard:before {
     color: rgba(255, 255, 255, 0.6);
   }
   .md-typeset summary:after {
     color: rgba(255, 255, 255, 0.26);
   }
-  .md-typeset .admonition.example > .admonition-title, .md-typeset .admonition.example > summary, .md-typeset details.example > .admonition-title, .md-typeset details.example > summary {
+  .md-typeset .admonition.example > .admonition-title,
+  .md-typeset .admonition.example > summary,
+  .md-typeset details.example > .admonition-title,
+  .md-typeset details.example > summary {
     background-color: rgba(154, 109, 255, 0.21);
   }
   .md-nav__link[data-md-state='blur'] {

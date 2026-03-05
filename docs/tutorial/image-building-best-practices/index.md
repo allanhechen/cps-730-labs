@@ -50,40 +50,39 @@ command, you can see the command that was used to create each layer within an im
 1. Use the `docker image history` command to see the layers in the `getting-started` image you
    created earlier in the tutorial.
 
-    ```bash
-    docker image history getting-started
-    ```
+   ```bash
+   docker image history getting-started
+   ```
 
-    You should get output that looks something like this (dates/IDs may be different).
+   You should get output that looks something like this (dates/IDs may be different).
 
-    ```plaintext
-    IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
-    05bd8640b718   53 minutes ago   CMD ["node" "src/index.js"]                     0B        buildkit.dockerfile.v0
-    <missing>      53 minutes ago   RUN /bin/sh -c yarn install --production # b…   83.3MB    buildkit.dockerfile.v0
-    <missing>      53 minutes ago   COPY . . # buildkit                             4.59MB    buildkit.dockerfile.v0
-    <missing>      55 minutes ago   WORKDIR /app                                    0B        buildkit.dockerfile.v0
-    <missing>      10 days ago      /bin/sh -c #(nop)  CMD ["node"]                 0B        
-    <missing>      10 days ago      /bin/sh -c #(nop)  ENTRYPOINT ["docker-entry…   0B        
-    <missing>      10 days ago      /bin/sh -c #(nop) COPY file:4d192565a7220e13…   388B      
-    <missing>      10 days ago      /bin/sh -c apk add --no-cache --virtual .bui…   7.85MB    
-    <missing>      10 days ago      /bin/sh -c #(nop)  ENV YARN_VERSION=1.22.19     0B        
-    <missing>      10 days ago      /bin/sh -c addgroup -g 1000 node     && addu…   152MB     
-    <missing>      10 days ago      /bin/sh -c #(nop)  ENV NODE_VERSION=18.12.1     0B        
-    <missing>      11 days ago      /bin/sh -c #(nop)  CMD ["/bin/sh"]              0B        
-    <missing>      11 days ago      /bin/sh -c #(nop) ADD file:57d621536158358b1…   5.29MB 
-    ```
+   ```plaintext
+   IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+   05bd8640b718   53 minutes ago   CMD ["node" "src/index.js"]                     0B        buildkit.dockerfile.v0
+   <missing>      53 minutes ago   RUN /bin/sh -c yarn install --production # b…   83.3MB    buildkit.dockerfile.v0
+   <missing>      53 minutes ago   COPY . . # buildkit                             4.59MB    buildkit.dockerfile.v0
+   <missing>      55 minutes ago   WORKDIR /app                                    0B        buildkit.dockerfile.v0
+   <missing>      10 days ago      /bin/sh -c #(nop)  CMD ["node"]                 0B
+   <missing>      10 days ago      /bin/sh -c #(nop)  ENTRYPOINT ["docker-entry…   0B
+   <missing>      10 days ago      /bin/sh -c #(nop) COPY file:4d192565a7220e13…   388B
+   <missing>      10 days ago      /bin/sh -c apk add --no-cache --virtual .bui…   7.85MB
+   <missing>      10 days ago      /bin/sh -c #(nop)  ENV YARN_VERSION=1.22.19     0B
+   <missing>      10 days ago      /bin/sh -c addgroup -g 1000 node     && addu…   152MB
+   <missing>      10 days ago      /bin/sh -c #(nop)  ENV NODE_VERSION=18.12.1     0B
+   <missing>      11 days ago      /bin/sh -c #(nop)  CMD ["/bin/sh"]              0B
+   <missing>      11 days ago      /bin/sh -c #(nop) ADD file:57d621536158358b1…   5.29MB
+   ```
 
-    Each line represents a layer in the image. The display here shows the base at the bottom with
-    the newest layer at the top. Using this you can also quickly see the size of each layer, helping to
-    diagnose large images.
+   Each line represents a layer in the image. The display here shows the base at the bottom with
+   the newest layer at the top. Using this you can also quickly see the size of each layer, helping to
+   diagnose large images.
 
 1. You'll notice that several of the lines are truncated. If you add the `--no-trunc` flag, you'll get the
    full output (yes... funny how you use a truncated flag to get untruncated output, huh?)
 
-    ```bash
-    docker image history --no-trunc getting-started
-    ```
-
+   ```bash
+   docker image history --no-trunc getting-started
+   ```
 
 ## Layer Caching
 
@@ -113,88 +112,87 @@ a change to the `package.json`. Make sense?
 
 1. Update the Dockerfile to copy in the `package.json` first, install dependencies, and then copy everything else in.
 
-    ```dockerfile hl_lines="3 4 5"
-    FROM node:18-alpine
-    WORKDIR /app
-    COPY package.json yarn.lock ./
-    RUN yarn install --production
-    COPY . .
-    CMD ["node", "src/index.js"]
-    ```
+   ```dockerfile hl_lines="3 4 5"
+   FROM node:18-alpine
+   WORKDIR /app
+   COPY package.json yarn.lock ./
+   RUN yarn install --production
+   COPY . .
+   CMD ["node", "src/index.js"]
+   ```
 
 1. Create a file named `.dockerignore` in the same folder as the Dockerfile with the following contents.
 
-    ```ignore
-    node_modules
-    ```
+   ```ignore
+   node_modules
+   ```
 
-    `.dockerignore` files are an easy way to selectively copy only image relevant files.
-    You can read more about this
-    [here](https://docs.docker.com/engine/reference/builder/#dockerignore-file).
-    In this case, the `node_modules` folder should be omitted in the second `COPY` step because otherwise
-    it would possibly overwrite files which were created by the command in the `RUN` step.
-    For further details on why this is recommended for Node.js applications as well as further best practices,
-    have a look at their guide on
-    [Dockerizing a Node.js web app](https://nodejs.org/en/docs/guides/nodejs-docker-webapp/).
+   `.dockerignore` files are an easy way to selectively copy only image relevant files.
+   You can read more about this
+   [here](https://docs.docker.com/engine/reference/builder/#dockerignore-file).
+   In this case, the `node_modules` folder should be omitted in the second `COPY` step because otherwise
+   it would possibly overwrite files which were created by the command in the `RUN` step.
+   For further details on why this is recommended for Node.js applications as well as further best practices,
+   have a look at their guide on
+   [Dockerizing a Node.js web app](https://nodejs.org/en/docs/guides/nodejs-docker-webapp/).
 
 1. Build a new image using `docker build`.
 
-    ```bash
-    docker build -t getting-started .
-    ```
+   ```bash
+   docker build -t getting-started .
+   ```
 
-    You should see output like this...
+   You should see output like this...
 
-    ```plaintext
-    [+] Building 16.1s (10/10) FINISHED
-    => [internal] load build definition from Dockerfile                                               0.0s
-    => => transferring dockerfile: 175B                                                               0.0s
-    => [internal] load .dockerignore                                                                  0.0s
-    => => transferring context: 2B                                                                    0.0s
-    => [internal] load metadata for docker.io/library/node:18-alpine                                  0.0s
-    => [internal] load build context                                                                  0.8s
-    => => transferring context: 53.37MB                                                               0.8s
-    => [1/5] FROM docker.io/library/node:18-alpine                                                    0.0s
-    => CACHED [2/5] WORKDIR /app                                                                      0.0s
-    => [3/5] COPY package.json yarn.lock ./                                                           0.2s
-    => [4/5] RUN yarn install --production                                                           14.0s
-    => [5/5] COPY . .                                                                                 0.5s 
-    => exporting to image                                                                             0.6s 
-    => => exporting layers                                                                            0.6s 
-    => => writing image sha256:d6f819013566c54c50124ed94d5e66c452325327217f4f04399b45f94e37d25        0.0s 
-    => => naming to docker.io/library/getting-started                                                 0.0s
-    ```
+   ```plaintext
+   [+] Building 16.1s (10/10) FINISHED
+   => [internal] load build definition from Dockerfile                                               0.0s
+   => => transferring dockerfile: 175B                                                               0.0s
+   => [internal] load .dockerignore                                                                  0.0s
+   => => transferring context: 2B                                                                    0.0s
+   => [internal] load metadata for docker.io/library/node:18-alpine                                  0.0s
+   => [internal] load build context                                                                  0.8s
+   => => transferring context: 53.37MB                                                               0.8s
+   => [1/5] FROM docker.io/library/node:18-alpine                                                    0.0s
+   => CACHED [2/5] WORKDIR /app                                                                      0.0s
+   => [3/5] COPY package.json yarn.lock ./                                                           0.2s
+   => [4/5] RUN yarn install --production                                                           14.0s
+   => [5/5] COPY . .                                                                                 0.5s
+   => exporting to image                                                                             0.6s
+   => => exporting layers                                                                            0.6s
+   => => writing image sha256:d6f819013566c54c50124ed94d5e66c452325327217f4f04399b45f94e37d25        0.0s
+   => => naming to docker.io/library/getting-started                                                 0.0s
+   ```
 
-    You'll see that all layers were rebuilt. Perfectly fine since we changed the Dockerfile quite a bit.
+   You'll see that all layers were rebuilt. Perfectly fine since we changed the Dockerfile quite a bit.
 
 1. Now, make a change to the `src/static/index.html` file (like change the `<title>` to say "The Awesome Todo App").
 
 1. Build the Docker image now using `docker build -t getting-started .` again. This time, your output should look a little different.
 
-    ```plaintext hl_lines="10 11 12"
-    [+] Building 1.2s (10/10) FINISHED
-    => [internal] load build definition from Dockerfile                                               0.0s
-    => => transferring dockerfile: 37B                                                                0.0s
-    => [internal] load .dockerignore                                                                  0.0s
-    => => transferring context: 2B                                                                    0.0s
-    => [internal] load metadata for docker.io/library/node:18-alpine                                  0.0s
-    => [internal] load build context                                                                  0.2s
-    => => transferring context: 450.43kB                                                              0.2s
-    => [1/5] FROM docker.io/library/node:18-alpine                                                    0.0s
-    => CACHED [2/5] WORKDIR /app                                                                      0.0s
-    => CACHED [3/5] COPY package.json yarn.lock ./                                                    0.0s
-    => CACHED [4/5] RUN yarn install --production                                                     0.0s
-    => [5/5] COPY . .                                                                                 0.5s
-    => exporting to image                                                                             0.3s
-    => => exporting layers                                                                            0.3s
-    => => writing image sha256:91790c87bcb096a83c2bd4eb512bc8b134c757cda0bdee4038187f98148e2eda       0.0s
-    => => naming to docker.io/library/getting-started                                                 0.0s
-    ```
+   ```plaintext hl_lines="10 11 12"
+   [+] Building 1.2s (10/10) FINISHED
+   => [internal] load build definition from Dockerfile                                               0.0s
+   => => transferring dockerfile: 37B                                                                0.0s
+   => [internal] load .dockerignore                                                                  0.0s
+   => => transferring context: 2B                                                                    0.0s
+   => [internal] load metadata for docker.io/library/node:18-alpine                                  0.0s
+   => [internal] load build context                                                                  0.2s
+   => => transferring context: 450.43kB                                                              0.2s
+   => [1/5] FROM docker.io/library/node:18-alpine                                                    0.0s
+   => CACHED [2/5] WORKDIR /app                                                                      0.0s
+   => CACHED [3/5] COPY package.json yarn.lock ./                                                    0.0s
+   => CACHED [4/5] RUN yarn install --production                                                     0.0s
+   => [5/5] COPY . .                                                                                 0.5s
+   => exporting to image                                                                             0.3s
+   => => exporting layers                                                                            0.3s
+   => => writing image sha256:91790c87bcb096a83c2bd4eb512bc8b134c757cda0bdee4038187f98148e2eda       0.0s
+   => => naming to docker.io/library/getting-started                                                 0.0s
+   ```
 
-    First off, you should notice that the build was MUCH faster! You'll see that several steps are using
-    previously cached layers. So, hooray! We're using the build cache. Pushing and pulling this image and updates to it
-    will be much faster as well. Hooray!
-
+   First off, you should notice that the build was MUCH faster! You'll see that several steps are using
+   previously cached layers. So, hooray! We're using the build cache. Pushing and pulling this image and updates to it
+   will be much faster as well. Hooray!
 
 ## Multi-Stage Builds
 
@@ -217,13 +215,12 @@ COPY . .
 RUN mvn package
 
 FROM tomcat
-COPY --from=build /app/target/file.war /usr/local/tomcat/webapps 
+COPY --from=build /app/target/file.war /usr/local/tomcat/webapps
 ```
 
 In this example, we use one stage (called `build`) to perform the actual Java build with Maven. In the second
 stage (starting at `FROM tomcat`), we copy in files from the `build` stage. The final image is only the last stage
 being created (which can be overridden using the `--target` flag).
-
 
 ### React Example
 
@@ -246,7 +243,6 @@ COPY --from=build /app/build /usr/share/nginx/html
 
 Here, we are using a `node:18` image to perform the build (maximizing layer caching) and then copying the output
 into an nginx container. Cool, huh?
-
 
 ## Recap
 
