@@ -5,11 +5,16 @@ export enum Priority {
   HIGH = 7,
 }
 
+export interface Category {
+  id: number;
+  name: string;
+}
+
 export interface Todo {
   id: string;
   name: string;
   completed: boolean;
-  categories: string[];
+  categories: Category[];
   priority: Priority;
-  utcDueDate?: string;
+  utcDueDate?: string | undefined;
 }
