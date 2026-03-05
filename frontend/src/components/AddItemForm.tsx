@@ -2,6 +2,7 @@ import type { Todo } from '@todo-app/shared';
 import type { SubmitEvent } from 'react';
 import { useState } from 'react';
 import { Form, InputGroup, Button } from 'react-bootstrap';
+import api from '../api';
 
 interface AddItemFormProps {
   onNewItem: (item: Todo) => void;
@@ -11,20 +12,14 @@ function AddItemForm({ onNewItem }: AddItemFormProps) {
   const [newItem, setNewItem] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const submitNewItem = (e: SubmitEvent<HTMLFormElement>) => {
+  const submitNewItem = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
-    fetch('http://localhost:3000/items', {
-      method: 'POST',
-      body: JSON.stringify({ name: newItem }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((r) => r.json())
-      .then((item) => {
-        onNewItem(item);
-        setSubmitting(false);
-        setNewItem('');
-      });
+
+    const item = await api.createTodo(newItem);
+    onNewItem(item);
+    setSubmitting(false);
+    setNewItem('');
   };
 
   return (

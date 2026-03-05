@@ -10,7 +10,7 @@
         "module": "es2022",
         "target": "esnext",
         "moduleResolution": "bundler",
-        "types": ["node", "jest"],
+        // "types": ["node", "jest", "uuid"],
         // For nodejs:
         // "lib": ["esnext"],
         // "types": ["node"],

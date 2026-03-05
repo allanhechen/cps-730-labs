@@ -2,14 +2,18 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import ItemDisplay from './ItemDisplay';
 import AddItemForm from './AddItemForm';
 import type { Todo } from '@todo-app/shared';
+import api from '../api';
 
 function TodoListCard() {
   const [items, setItems] = useState<Todo[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/items')
-      .then((r) => r.json())
-      .then(setItems);
+    async function loadData() {
+      const items = await api.getTodos();
+      setItems(items);
+    }
+
+    loadData();
   }, []);
 
   const onNewItem = useCallback(

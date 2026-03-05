@@ -1,5 +1,6 @@
 import type { Todo } from '@todo-app/shared';
 import { Container, Row, Col, Button } from 'react-bootstrap';
+import api from '../api';
 
 interface ItemDisplayProps {
   item: Todo;
@@ -8,23 +9,18 @@ interface ItemDisplayProps {
 }
 
 function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
-  const toggleCompletion = () => {
-    fetch(`http://localhost:3000/items/${item.id}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        name: item.name,
-        completed: !item.completed,
-      }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((r) => r.json())
-      .then(onItemUpdate);
+  const toggleCompletion = async () => {
+    const updatedItem: Todo = {
+      ...item,
+      completed: !item.completed,
+    };
+    const response = await api.updateTodo(item.id, updatedItem);
+    onItemUpdate(response);
   };
 
-  const removeItem = () => {
-    fetch(`http://localhost:3000/items/${item.id}`, { method: 'DELETE' }).then(
-      () => onItemRemoval(item),
-    );
+  const removeItem = async () => {
+    await api.deleteTodo(item.id);
+    onItemRemoval(item);
   };
 
   return (
