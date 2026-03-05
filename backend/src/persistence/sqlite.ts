@@ -19,12 +19,18 @@ async function init(): Promise<any> {
     }
 
     db = await open({
-        filename: '/tmp/database.db',
+        filename: location,
         driver: sqlite3.Database,
     });
 
     await db.run(
         'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean, priority integer, utcDueDate text)',
+    );
+    await db.run(
+        'CREATE TABLE IF NOT EXISTS categories (id integer primary key, name varchar(255))',
+    );
+    await db.run(
+        'CREATE TABLE IF NOT EXISTS todo_item_categories (id integer primary key, todoId varchar(36) references todo_items, categoryId integer references categories)',
     );
 }
 
@@ -32,6 +38,7 @@ async function teardown(): Promise<void> {
     await db.close();
 }
 
+// TODO: add category support in query
 async function getItems() {
     const rows = await db.all('SELECT * FROM todo_items');
     return rows.map((item) =>
@@ -41,6 +48,7 @@ async function getItems() {
     );
 }
 
+// TODO: add category support in query
 async function getItem(id: Todo['id']) {
     const rows = await db.all('SELECT * FROM todo_items WHERE id=?', [id]);
 
@@ -51,19 +59,26 @@ async function getItem(id: Todo['id']) {
     )[0];
 }
 
+// TODO: add category support in query
 async function storeItem(item: Todo): Promise<void> {
     await db.run(
-        'INSERT INTO todo_items (id, name, completed) VALUES (?, ?, ?)',
-        [item.id, item.name, item.completed ? 1 : 0],
+        'INSERT INTO todo_items (id, name, completed, priority, utcDueDate) VALUES (?, ?, ?, ?, ?)',
+        [
+            item.id,
+            item.name,
+            item.completed ? 1 : 0,
+            item.priority,
+            item.utcDueDate,
+        ],
     );
 }
 
+// TODO: add category support in query
 async function updateItem(id: Todo['id'], item: Todo): Promise<void> {
-    await db.run('UPDATE todo_items SET name=?, completed=? WHERE id = ?', [
-        item.name,
-        item.completed ? 1 : 0,
-        id,
-    ]);
+    await db.run(
+        'UPDATE todo_items SET name=?, completed=?, priority=?, utcDueDate=?, WHERE id = ?',
+        [item.name, item.completed ? 1 : 0, id, item.priority, item.utcDueDate],
+    );
 }
 
 async function removeItem(id: Todo['id']): Promise<void> {
