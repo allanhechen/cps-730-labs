@@ -1,4 +1,3 @@
-import type { Priority } from '@todo-app/shared';
 import db from '../persistence/index.js';
 import type { Request, Response } from 'express';
 
