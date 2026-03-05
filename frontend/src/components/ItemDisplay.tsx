@@ -1,6 +1,7 @@
-import type { Todo } from '@todo-app/shared';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Priority, type Todo } from '@todo-app/shared';
+import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 import api from '../api';
+import type { ChangeEvent } from 'react';
 
 interface ItemDisplayProps {
   item: Todo;
@@ -13,6 +14,18 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
     const updatedItem: Todo = {
       ...item,
       completed: !item.completed,
+    };
+    const response = await api.updateTodo(item.id, updatedItem);
+    onItemUpdate(response);
+  };
+
+  const handleChange = async (
+    e: ChangeEvent<HTMLSelectElement, HTMLSelectElement>,
+  ) => {
+    e.preventDefault();
+    const updatedItem: Todo = {
+      ...item,
+      priority: parseInt(e.target.value),
     };
     const response = await api.updateTodo(item.id, updatedItem);
     onItemUpdate(response);
@@ -45,8 +58,16 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
             />
           </Button>
         </Col>
-        <Col xs={10} className="name">
+        <Col xs={6} className="name">
           {item.name}
+        </Col>
+        <Col xs={4}>
+          <Form.Select value={item.priority} onChange={handleChange}>
+            <option value={Priority.NONE}>None</option>
+            <option value={Priority.LOW}>Low</option>
+            <option value={Priority.MEDIUM}>Medium</option>
+            <option value={Priority.HIGH}>High</option>
+          </Form.Select>
         </Col>
         <Col xs={1} className="text-center remove">
           <Button

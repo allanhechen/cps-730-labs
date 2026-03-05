@@ -1,4 +1,4 @@
-import type { Todo, Category, Priority } from '@todo-app/shared';
+import type { Todo, Category } from '@todo-app/shared';
 
 const deleteTodo =
   (path: string) =>
@@ -19,12 +19,13 @@ const updateTodo =
 
 const createTodo =
   (path: string) =>
-  async (name: Todo['name']): Promise<void> => {
-    await fetch(`${path}/items`, {
+  async (name: Todo['name']): Promise<Todo> => {
+    const response = await fetch(`${path}/items`, {
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: { 'Content-Type': 'application/json' },
     });
+    return await response.json();
   };
 
 const getTodos = (path: string) => async (): Promise<Todo[]> => {
