@@ -2,6 +2,7 @@ import db from '../persistence/index';
 import type { Request, Response } from 'express';
 
 export default async (req: Request, res: Response) => {
-    await db.removeItem(req.params.id);
+    const id = req.params.id as string;
+    await db.removeItem(id);
     res.sendStatus(200);
 };
