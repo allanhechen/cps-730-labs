@@ -45,8 +45,12 @@ async function getCategories() {
     }));
 }
 
-async function addCategory(name: Category['name']): Promise<void> {
-    await db.run('INSERT INTO categories (name) VALUES (?)', [name]);
+async function addCategory(name: Category['name']): Promise<number> {
+    const result = await db.get(
+        'INSERT INTO categories (name) VALUES (?) RETURNING id',
+        [name],
+    );
+    return result.id;
 }
 
 async function addItemToCategory(
