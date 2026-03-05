@@ -1,11 +1,14 @@
-import type { Todo, Category } from '@todo-app/shared';
+import type { Todo, Category, Priority } from '@todo-app/shared';
 
-const deleteTodo = (path: string) => async (id: Todo['id']) => {
-  await fetch(`${path}/items/${id}`, { method: 'DELETE' });
-};
+const deleteTodo =
+  (path: string) =>
+  async (id: Todo['id']): Promise<void> => {
+    await fetch(`${path}/items/${id}`, { method: 'DELETE' });
+  };
 
 const updateTodo =
-  (path: string) => async (id: Todo['id'], updatedTodo: Todo) => {
+  (path: string) =>
+  async (id: Todo['id'], updatedTodo: Todo): Promise<Todo> => {
     const response = await fetch(`${path}/items/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updatedTodo),
@@ -14,38 +17,41 @@ const updateTodo =
     return await response.json();
   };
 
-const createTodo = (path: string) => async (name: Todo['name']) => {
-  const response = await fetch(`${path}/items`, {
-    method: 'POST',
-    body: JSON.stringify({ name }),
-    headers: { 'Content-Type': 'application/json' },
-  });
+const createTodo =
+  (path: string) =>
+  async (name: Todo['name']): Promise<void> => {
+    await fetch(`${path}/items`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  };
 
-  return await response.json();
-};
-
-const getTodos = (path: string) => async () => {
+const getTodos = (path: string) => async (): Promise<Todo[]> => {
   const response = await fetch(`${path}/items`);
   return await response.json();
 };
 
-const addCategory = (path: string) => async (name: Category['name']) => {
-  const response = await fetch(`${path}/items`, {
-    method: 'POST',
-    body: JSON.stringify({ name }),
-    headers: { 'Content-Type': 'application/json' },
-  });
+const addCategory =
+  (path: string) =>
+  async (name: Category['name']): Promise<Category> => {
+    const response = await fetch(`${path}/items`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-  return await response.json();
-};
+    return await response.json();
+  };
 
-const getCategories = (path: string) => async () => {
+const getCategories = (path: string) => async (): Promise<Category[]> => {
   const response = await fetch(`${path}/categories`);
   return await response.json();
 };
 
 const addItemToCategory =
-  (path: string) => async (todoId: Todo['id'], categoryId: Category['id']) => {
+  (path: string) =>
+  async (todoId: Todo['id'], categoryId: Category['id']): Promise<void> => {
     await fetch(`${path}/items/${todoId}/categories`, {
       method: 'POST',
       body: JSON.stringify({ categoryId }),
@@ -54,18 +60,14 @@ const addItemToCategory =
   };
 
 const removeItemFromCategory =
-  (path: string) => async (todoId: Todo['id'], categoryId: Category['id']) => {
+  (path: string) =>
+  async (todoId: Todo['id'], categoryId: Category['id']): Promise<void> => {
     await fetch(`${path}/items/${todoId}/categories`, {
       method: 'DELETE',
       body: JSON.stringify({ categoryId }),
       headers: { 'Content-Type': 'application/json' },
     });
   };
-
-const getPriorities = (path: string) => async () => {
-  const response = await fetch(`${path}/priorities`);
-  return await response.json();
-};
 
 const init = (path: string) => ({
   deleteTodo: deleteTodo(path),
@@ -76,7 +78,6 @@ const init = (path: string) => ({
   getCategories: getCategories(path),
   addItemToCategory: addItemToCategory(path),
   removeItemFromCategory: removeItemFromCategory(path),
-  getPriorities: getPriorities(path),
 });
 let api: ReturnType<typeof init> = init('http://localhost:3000'); // TODO: load from env or similar
 

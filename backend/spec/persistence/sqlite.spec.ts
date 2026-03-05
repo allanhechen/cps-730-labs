@@ -188,17 +188,6 @@ describe('categories', () => {
 });
 
 describe('priorities', () => {
-    it('should be able to get priorities', async () => {
-        await db.init();
-        const priorities = await db.getPriorities();
-        expect(priorities).toEqual([
-            { id: 0, name: 'NONE' },
-            { id: 3, name: 'LOW' },
-            { id: 5, name: 'MEDIUM' },
-            { id: 7, name: 'HIGH' },
-        ]);
-    });
-
     it('should be able to update item priority', async () => {
         await db.init();
         await db.storeItem(ITEM);
