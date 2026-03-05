@@ -12,7 +12,7 @@ import type { Todo } from '@todo-app/shared';
 
 let db: Database;
 
-async function init(): Promise<any> {
+async function init(): Promise<void> {
     const dirName = path.dirname(location);
     if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName, { recursive: true });
@@ -81,13 +81,7 @@ async function storeItem(item: Todo): Promise<void> {
 async function updateItem(id: Todo['id'], item: Todo): Promise<void> {
     await db.run(
         'UPDATE todo_items SET name=?, completed=?, priority=?, utcDueDate=? WHERE id = ?',
-        [
-            item.name,
-            item.completed ? 1 : 0,
-            item.priority,
-            item.utcDueDate,
-            id,
-        ],
+        [item.name, item.completed ? 1 : 0, item.priority, item.utcDueDate, id],
     );
 }
 
