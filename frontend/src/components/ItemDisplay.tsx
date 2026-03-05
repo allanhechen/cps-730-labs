@@ -1,6 +1,13 @@
+import type { Todo } from '@todo-app/shared';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 
-function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
+interface ItemDisplayProps {
+  item: Todo;
+  onItemUpdate: (item: Todo) => void;
+  onItemRemoval: (item: Todo) => void;
+}
+
+function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
   const toggleCompletion = () => {
     fetch(`http://localhost:3000/items/${item.id}`, {
       method: 'PUT',

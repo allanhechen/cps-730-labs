@@ -1,11 +1,17 @@
+import type { Todo } from '@todo-app/shared';
+import type { SubmitEvent } from 'react';
 import { useState } from 'react';
 import { Form, InputGroup, Button } from 'react-bootstrap';
 
-function AddItemForm({ onNewItem }) {
+interface AddItemFormProps {
+  onNewItem: (item: Todo) => void;
+}
+
+function AddItemForm({ onNewItem }: AddItemFormProps) {
   const [newItem, setNewItem] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const submitNewItem = (e) => {
+  const submitNewItem = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
     fetch('http://localhost:3000/items', {
