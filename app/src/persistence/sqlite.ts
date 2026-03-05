@@ -1,17 +1,23 @@
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
-const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
+// TODO: use dynamic import or bootstrap
+import dotenv from 'dotenv';
+dotenv.config();
 
-let db, dbAll, dbRun;
+import sqlite3 from 'sqlite3';
+sqlite3.verbose();
+import fs from 'fs';
+const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
+import path from 'path';
+
+let db: sqlite3.Database;
 
 function init() {
-    const dirName = require('path').dirname(location);
+    const dirName = path.dirname(location);
     if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName, { recursive: true });
     }
 
     return new Promise((acc, rej) => {
-        db = new sqlite3.Database(location, err => {
+        db = new sqlite3.Database(location, (err) => {
             if (err) return rej(err);
 
             if (process.env.NODE_ENV !== 'test')
@@ -30,7 +36,7 @@ function init() {
 
 async function teardown() {
     return new Promise((acc, rej) => {
-        db.close(err => {
+        db.close((err) => {
             if (err) rej(err);
             else acc();
         });
@@ -42,7 +48,7 @@ async function getItems() {
         db.all('SELECT * FROM todo_items', (err, rows) => {
             if (err) return rej(err);
             acc(
-                rows.map(item =>
+                rows.map((item) =>
                     Object.assign({}, item, {
                         completed: item.completed === 1,
                     }),
@@ -57,7 +63,7 @@ async function getItem(id) {
         db.all('SELECT * FROM todo_items WHERE id=?', [id], (err, rows) => {
             if (err) return rej(err);
             acc(
-                rows.map(item =>
+                rows.map((item) =>
                     Object.assign({}, item, {
                         completed: item.completed === 1,
                     }),
@@ -72,7 +78,7 @@ async function storeItem(item) {
         db.run(
             'INSERT INTO todo_items (id, name, completed) VALUES (?, ?, ?)',
             [item.id, item.name, item.completed ? 1 : 0],
-            err => {
+            (err) => {
                 if (err) return rej(err);
                 acc();
             },
@@ -85,24 +91,24 @@ async function updateItem(id, item) {
         db.run(
             'UPDATE todo_items SET name=?, completed=? WHERE id = ?',
             [item.name, item.completed ? 1 : 0, id],
-            err => {
+            (err) => {
                 if (err) return rej(err);
                 acc();
             },
         );
     });
-} 
+}
 
 async function removeItem(id) {
     return new Promise((acc, rej) => {
-        db.run('DELETE FROM todo_items WHERE id = ?', [id], err => {
+        db.run('DELETE FROM todo_items WHERE id = ?', [id], (err) => {
             if (err) return rej(err);
             acc();
         });
     });
 }
 
-module.exports = {
+export default {
     init,
     teardown,
     getItems,

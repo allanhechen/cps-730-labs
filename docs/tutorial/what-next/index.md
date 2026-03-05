@@ -1,4 +1,3 @@
-
 Although we're done with our workshop, there's still a LOT more to learn about containers!
 We're not going to go deep-dive here, but here are a few other areas to look at next!
 
@@ -14,10 +13,9 @@ The general idea is that you have "managers" who receive **expected state**. Thi
 machines in the cluster and delegate work to "worker" nodes. The managers watch for changes (such as
 a container quitting) and then work to make **actual state** reflect the expected state.
 
-
 ## Cloud Native Computing Foundation Projects
 
-The CNCF is a vendor-neutral home for various open-source projects, including Kubernetes, Prometheus, 
+The CNCF is a vendor-neutral home for various open-source projects, including Kubernetes, Prometheus,
 Envoy, Linkerd, NATS, and more! You can view the [graduated and incubated projects here](https://www.cncf.io/projects/)
 and the entire [CNCF Landscape here](https://landscape.cncf.io/). There are a LOT of projects to help
 solve problems around monitoring, logging, security, image registries, messaging, and more!

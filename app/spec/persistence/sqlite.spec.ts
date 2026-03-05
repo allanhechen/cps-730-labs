@@ -1,5 +1,6 @@
-const db = require('../../src/persistence/sqlite');
-const fs = require('fs');
+import fs from 'fs';
+import db from '../../src/persistence/sqlite';
+
 const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
 
 const ITEM = {
@@ -36,10 +37,7 @@ test('it can update an existing item', async () => {
 
     await db.storeItem(ITEM);
 
-    await db.updateItem(
-        ITEM.id,
-        Object.assign({}, ITEM, { completed: !ITEM.completed }),
-    );
+    await db.updateItem(ITEM.id, { ...ITEM, completed: !ITEM.completed });
 
     const items = await db.getItems();
     expect(items.length).toBe(1);
