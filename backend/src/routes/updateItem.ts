@@ -7,6 +7,9 @@ export default async (req: Request, res: Response) => {
         id: id,
         name: req.body.name,
         completed: req.body.completed,
+        categories: req.body.categories, // TODO: implement this
+        priority: req.body.priority, // TODO: add this in the frontend
+        utcDueDate: req.body.utcDueDate, // TODO: implement this
     });
     const item = await db.getItem(id);
     res.send(item);

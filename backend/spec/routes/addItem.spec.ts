@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import db from '../../src/persistence';
 import addItem from '../../src/routes/addItem';
+import { Priority } from '@todo-app/shared';
 
 jest.mock('uuid', () => ({
     v4: jest.fn(),
@@ -27,7 +28,13 @@ test('it stores item correctly', async () => {
 
     await addItem(req, res);
 
-    const expectedItem = { id, name, completed: false };
+    const expectedItem = {
+        id,
+        name,
+        completed: false,
+        priority: Priority.NONE,
+        categories: [],
+    };
 
     expect(jest.mocked(db.storeItem).mock.calls.length).toBe(1);
     expect(jest.mocked(db.storeItem).mock.calls[0]![0]).toEqual(expectedItem);
