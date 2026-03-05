@@ -36,7 +36,7 @@ const getTodos = (path: string) => async (): Promise<Todo[]> => {
 const addCategory =
   (path: string) =>
   async (name: Category['name']): Promise<Category> => {
-    const response = await fetch(`${path}/items`, {
+    const response = await fetch(`${path}/categories`, {
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: { 'Content-Type': 'application/json' },
