@@ -12,13 +12,51 @@ jest.mock('../../src/persistence', () => ({
 }));
 
 test('it gets items correctly', async () => {
-    const req = {} as any;
+    const req = { query: {} } as any;
     const res = { send: jest.fn() } as any;
 
     jest.mocked(db.getItems).mockResolvedValue(ITEMS);
 
     await getItems(req, res);
 
-    expect(db.getItems).toHaveBeenCalledTimes(1);
+    expect(db.getItems).toHaveBeenCalledWith({});
     expect(res.send).toHaveBeenCalledWith(ITEMS);
+});
+
+test('it passes filters correctly', async () => {
+    const req = {
+        query: {
+            search: 'test',
+            priority: '7',
+            categories: ['1', '2'],
+        },
+    } as any;
+    const res = { send: jest.fn() } as any;
+
+    jest.mocked(db.getItems).mockResolvedValue(ITEMS);
+
+    await getItems(req, res);
+
+    expect(db.getItems).toHaveBeenCalledWith({
+        search: 'test',
+        priority: 7,
+        categories: [1, 2],
+    });
+});
+
+test('it handles single category', async () => {
+    const req = {
+        query: {
+            categories: '1',
+        },
+    } as any;
+    const res = { send: jest.fn() } as any;
+
+    jest.mocked(db.getItems).mockResolvedValue(ITEMS);
+
+    await getItems(req, res);
+
+    expect(db.getItems).toHaveBeenCalledWith({
+        categories: [1],
+    });
 });

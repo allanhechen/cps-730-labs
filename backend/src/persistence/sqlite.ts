@@ -74,9 +74,12 @@ async function removeItemFromCategory(
     ]);
 }
 
-async function getItems() {
-    const rows = await db.all(
-        `SELECT 
+async function getItems(filters?: {
+    search?: string;
+    priority?: Priority;
+    categories?: number[];
+}) {
+    let query = `SELECT 
             todo_items.id as todoId, 
             todo_items.name as todoName, 
             completed, 
@@ -85,8 +88,35 @@ async function getItems() {
             categories.id as categoryId, 
             categories.name as categoryName 
         FROM todo_items LEFT JOIN todo_item_categories ON todo_items.id = todo_item_categories.todoId 
-        LEFT JOIN categories ON todo_item_categories.categoryId = categories.id;`,
-    );
+        LEFT JOIN categories ON todo_item_categories.categoryId = categories.id`;
+
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (filters) {
+        if (filters.search) {
+            conditions.push('todo_items.name LIKE ?');
+            params.push(`%${filters.search}%`);
+        }
+        if (filters.priority !== undefined) {
+            conditions.push('todo_items.priority = ?');
+            params.push(filters.priority);
+        }
+        if (filters.categories && filters.categories.length > 0) {
+            conditions.push(`todo_items.id IN (
+                SELECT todoId FROM todo_item_categories WHERE categoryId IN (${filters.categories
+                    .map(() => '?')
+                    .join(',')})
+            )`);
+            params.push(...filters.categories);
+        }
+    }
+
+    if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    const rows = await db.all(query, params);
     const result = rows.reduce<Record<string, Todo>>((acc, curr) => {
         if (!acc[curr.todoId]) {
             acc[curr.todoId] = {
