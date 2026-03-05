@@ -9,6 +9,7 @@ import fs from 'fs';
 const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
 import path from 'path';
 import type { Category, Todo } from '@todo-app/shared';
+import { Priority } from '@todo-app/shared';
 
 let db: Database;
 
@@ -176,6 +177,25 @@ async function removeItem(id: Todo['id']): Promise<void> {
     await db.run('DELETE FROM todo_items WHERE id = ?', [id]);
 }
 
+async function getPriorities() {
+    return Object.entries(Priority)
+        .filter(([key]) => isNaN(Number(key)))
+        .map(([name, id]) => ({
+            id: id as number,
+            name,
+        }));
+}
+
+async function updateItemPriority(
+    id: Todo['id'],
+    priority: Priority,
+): Promise<void> {
+    await db.run('UPDATE todo_items SET priority=? WHERE id = ?', [
+        priority,
+        id,
+    ]);
+}
+
 export default {
     init,
     teardown,
@@ -188,4 +208,6 @@ export default {
     addCategory,
     addItemToCategory,
     removeItemFromCategory,
+    getPriorities,
+    updateItemPriority,
 };
