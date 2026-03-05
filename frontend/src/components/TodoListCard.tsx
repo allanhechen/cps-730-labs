@@ -1,9 +1,10 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import ItemDisplay from './ItemDisplay';
 import AddItemForm from './AddItemForm';
+import type { Todo } from '@todo-app/shared';
 
 function TodoListCard() {
-  const [items, setItems] = useState(null);
+  const [items, setItems] = useState<Todo[]>([]);
 
   useEffect(() => {
     fetch('http://localhost:3000/items')
@@ -12,14 +13,14 @@ function TodoListCard() {
   }, []);
 
   const onNewItem = useCallback(
-    (newItem) => {
+    (newItem: Todo) => {
       setItems([...items, newItem]);
     },
     [items],
   );
 
   const onItemUpdate = useCallback(
-    (item) => {
+    (item: Todo) => {
       const index = items.findIndex((i) => i.id === item.id);
       setItems([...items.slice(0, index), item, ...items.slice(index + 1)]);
     },
@@ -27,7 +28,7 @@ function TodoListCard() {
   );
 
   const onItemRemoval = useCallback(
-    (item) => {
+    (item: Todo) => {
       const index = items.findIndex((i) => i.id === item.id);
       setItems([...items.slice(0, index), ...items.slice(index + 1)]);
     },
