@@ -1,6 +1,16 @@
 {
   "name": "@todo-app/shared",
   "version": "1.0.0",
-  "main": "./index.ts",
-  "type": "module"
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "babel src --out-dir dist --extensions \".ts,.tsx\" && tsc --emitDeclarationOnly"
+  }
 }

@@ -40,7 +40,11 @@
         "isolatedModules": true,
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "paths": {
+            "@todo-app/shared": ["../shared/dist/index.d.ts"],
+            "@todo-app/shared/*": ["../shared/dist/*"]
+        }
     },
     "include": ["src/**/*", "spec/**/*"]
 }

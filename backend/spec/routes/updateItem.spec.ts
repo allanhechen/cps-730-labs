@@ -1,3 +1,4 @@
+import { Priority } from '@todo-app/shared';
 import db from '../../src/persistence';
 import updateItem from '../../src/routes/updateItem';
 
@@ -14,7 +15,13 @@ jest.mock('../../src/persistence', () => ({
 test('it updates items correctly', async () => {
     const req = {
         params: { id: '1234' },
-        body: { name: 'New title', completed: false },
+        body: {
+            name: 'New title',
+            completed: false,
+            categories: [],
+            priority: Priority.NONE,
+            utcDueDate: undefined,
+        },
     } as any;
     const res = { send: jest.fn() } as any;
 
@@ -24,8 +31,12 @@ test('it updates items correctly', async () => {
 
     expect(db.updateItem).toHaveBeenCalledTimes(1);
     expect(db.updateItem).toHaveBeenCalledWith(req.params.id, {
+        id: req.params.id,
         name: 'New title',
         completed: false,
+        categories: [],
+        priority: Priority.NONE,
+        utcDueDate: undefined,
     });
 
     expect(db.getItem).toHaveBeenCalledTimes(1);

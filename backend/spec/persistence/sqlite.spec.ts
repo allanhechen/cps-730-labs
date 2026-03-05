@@ -1,12 +1,15 @@
 import fs from 'fs';
 import db from '../../src/persistence/sqlite';
+import { Priority, type Todo } from '@todo-app/shared';
 
 const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
 
-const ITEM = {
+const ITEM: Todo = {
     id: '7aef3d7c-d301-4846-8358-2a91ec9d6be3',
     name: 'Test',
     completed: false,
+    categories: [],
+    priority: Priority.NONE,
 };
 
 beforeEach(() => {
