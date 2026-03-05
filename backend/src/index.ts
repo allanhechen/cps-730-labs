@@ -3,6 +3,12 @@ import getItems from './routes/getItems';
 import addItem from './routes/addItem';
 import updateItem from './routes/updateItem';
 import deleteItem from './routes/deleteItem';
+import getCategories from './routes/getCategories';
+import addCategory from './routes/addCategory';
+import addItemToCategory from './routes/addItemToCategory';
+import removeItemFromCategory from './routes/removeItemFromCategory';
+import getPriorities from './routes/getPriorities';
+import updateItemPriority from './routes/updateItemPriority';
 import cors from 'cors';
 
 import express from 'express';
@@ -20,6 +26,14 @@ app.get('/items', getItems);
 app.post('/items', addItem);
 app.put('/items/:id', updateItem);
 app.delete('/items/:id', deleteItem);
+
+app.get('/categories', getCategories);
+app.post('/categories', addCategory);
+app.post('/items/:itemId/categories', addItemToCategory);
+app.delete('/items/:itemId/categories', removeItemFromCategory);
+
+app.get('/priorities', getPriorities);
+app.put('/items/:id/priority', updateItemPriority);
 
 db.init()
     .then(() => {
