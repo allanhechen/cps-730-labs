@@ -135,6 +135,7 @@ function ItemDisplay({
             value={item.priority}
             onChange={handlePriorityChange}
             size="sm"
+            aria-label="Priority"
           >
             <option value={Priority.NONE}>None</option>
             <option value={Priority.LOW}>Low</option>
