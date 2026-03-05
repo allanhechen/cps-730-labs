@@ -66,6 +66,79 @@ describe('todo items', () => {
         const item = await db.getItem(ITEM.id);
         expect(item).toEqual(ITEM);
     });
+
+    test('it can filter by search', async () => {
+        await db.init();
+        await db.storeItem(ITEM);
+        await db.storeItem({ ...ITEM, id: '2', name: 'Another' });
+
+        const items = await db.getItems({ search: 'Test' });
+        expect(items.length).toBe(1);
+        expect(items[0]!.name).toBe('Test');
+
+        const items2 = await db.getItems({ search: 'other' });
+        expect(items2.length).toBe(1);
+        expect(items2[0]!.name).toBe('Another');
+    });
+
+    test('it can filter by priority', async () => {
+        await db.init();
+        await db.storeItem(ITEM); // Priority.NONE (0)
+        await db.storeItem({
+            ...ITEM,
+            id: '2',
+            name: 'High',
+            priority: Priority.HIGH,
+        });
+
+        const items = await db.getItems({ priority: Priority.HIGH });
+        expect(items.length).toBe(1);
+        expect(items[0]!.priority).toBe(Priority.HIGH);
+
+        const items2 = await db.getItems({ priority: Priority.NONE });
+        expect(items2.length).toBe(1);
+        expect(items2[0]!.priority).toBe(Priority.NONE);
+    });
+
+    test('it can filter by categories', async () => {
+        await db.init();
+        await db.storeItem(ITEM); // id: 7aef3d7c-d301-4846-8358-2a91ec9d6be3
+        await db.storeItem({ ...ITEM, id: '2', name: 'Item 2' });
+
+        await db.addCategory('cat1'); // id: 1
+        await db.addCategory('cat2'); // id: 2
+
+        await db.addItemToCategory(ITEM.id, 1);
+        await db.addItemToCategory('2', 2);
+
+        const items = await db.getItems({ categories: [1] });
+        expect(items.length).toBe(1);
+        expect(items[0]!.id).toBe(ITEM.id);
+
+        const items2 = await db.getItems({ categories: [2] });
+        expect(items2.length).toBe(1);
+        expect(items2[0]!.id).toBe('2');
+
+        const items3 = await db.getItems({ categories: [1, 2] });
+        expect(items3.length).toBe(2);
+    });
+
+    test('it returns all categories for filtered items', async () => {
+        await db.init();
+        await db.storeItem(ITEM);
+        await db.addCategory('cat1'); // 1
+        await db.addCategory('cat2'); // 2
+        await db.addItemToCategory(ITEM.id, 1);
+        await db.addItemToCategory(ITEM.id, 2);
+
+        const items = await db.getItems({ categories: [1] });
+        expect(items.length).toBe(1);
+        expect(items[0]!.categories.length).toBe(2);
+        expect(items[0]!.categories.map((c) => c.name).sort()).toEqual([
+            'cat1',
+            'cat2',
+        ]);
+    });
 });
 
 describe('categories', () => {
