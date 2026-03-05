@@ -52,22 +52,24 @@ const getCategories = (path: string) => async (): Promise<Category[]> => {
 
 const addItemToCategory =
   (path: string) =>
-  async (todoId: Todo['id'], categoryId: Category['id']): Promise<void> => {
-    await fetch(`${path}/items/${todoId}/categories`, {
+  async (todoId: Todo['id'], categoryId: Category['id']): Promise<Todo> => {
+    const response = await fetch(`${path}/items/${todoId}/categories`, {
       method: 'POST',
       body: JSON.stringify({ categoryId }),
       headers: { 'Content-Type': 'application/json' },
     });
+    return await response.json();
   };
 
 const removeItemFromCategory =
   (path: string) =>
-  async (todoId: Todo['id'], categoryId: Category['id']): Promise<void> => {
-    await fetch(`${path}/items/${todoId}/categories`, {
+  async (todoId: Todo['id'], categoryId: Category['id']): Promise<Todo> => {
+    const repsonse = await fetch(`${path}/items/${todoId}/categories`, {
       method: 'DELETE',
       body: JSON.stringify({ categoryId }),
       headers: { 'Content-Type': 'application/json' },
     });
+    return await repsonse.json();
   };
 
 const init = (path: string) => ({

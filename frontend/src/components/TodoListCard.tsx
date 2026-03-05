@@ -63,6 +63,7 @@ function TodoListCard() {
       {items.map((item) => (
         <ItemDisplay
           item={item}
+          categories={categories}
           key={item.id}
           onItemUpdate={onItemUpdate}
           onItemRemoval={onItemRemoval}
