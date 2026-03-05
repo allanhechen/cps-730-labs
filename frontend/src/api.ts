@@ -8,7 +8,7 @@ const deleteTodo =
 
 const updateTodo =
   (path: string) =>
-  async (id: Todo['id'], updatedTodo: Todo): Promise<Todo> => {
+  async (id: Todo['id'], updatedTodo: any): Promise<Todo> => {
     const response = await fetch(`${path}/items/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updatedTodo),
