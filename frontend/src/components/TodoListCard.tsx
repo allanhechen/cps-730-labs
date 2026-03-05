@@ -4,22 +4,33 @@ import AddItemForm from './AddItemForm';
 import type { Category, Todo } from '@todo-app/shared';
 import api from '../api';
 import AddCategoryForm from './AddCategoryForm';
+import FilterForm, { type Filters } from './FilterForm';
 
 function TodoListCard() {
   const [items, setItems] = useState<Todo[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [filters, setFilters] = useState<Filters>({ name: '' });
+
+  const loadItems = useCallback(async (currentFilters: Filters) => {
+    const items = await api.getTodos(currentFilters);
+    setItems(items);
+  }, []);
 
   useEffect(() => {
-    async function loadData() {
-      const items = await api.getTodos();
-      setItems(items);
-
+    async function loadInitialData() {
       const categories = await api.getCategories();
       setCategories(categories);
     }
 
-    loadData();
+    loadInitialData();
   }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      await loadItems(filters);
+    }
+    fetchData();
+  }, [filters, loadItems]);
 
   const onNewCategory = useCallback(
     (category: Category) => {
@@ -29,18 +40,17 @@ function TodoListCard() {
   );
 
   const onNewItem = useCallback(
-    (newItem: Todo) => {
-      setItems([...items, newItem]);
+    () => {
+      loadItems(filters);
     },
-    [items],
+    [filters, loadItems],
   );
 
   const onItemUpdate = useCallback(
-    (item: Todo) => {
-      const index = items.findIndex((i) => i.id === item.id);
-      setItems([...items.slice(0, index), item, ...items.slice(index + 1)]);
+    () => {
+      loadItems(filters);
     },
-    [items],
+    [filters, loadItems],
   );
 
   const onItemRemoval = useCallback(
@@ -57,8 +67,10 @@ function TodoListCard() {
     <Fragment>
       <AddCategoryForm onNewCategory={onNewCategory} />
       <AddItemForm onNewItem={onNewItem} />
+      <hr />
+      <FilterForm categories={categories} onFilterChange={setFilters} />
       {items.length === 0 && (
-        <p className="text-center">No items yet! Add one above!</p>
+        <p className="text-center">No items match your criteria!</p>
       )}
       {items.map((item) => (
         <ItemDisplay

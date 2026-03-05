@@ -8,7 +8,7 @@ const deleteTodo =
 
 const updateTodo =
   (path: string) =>
-  async (id: Todo['id'], updatedTodo: any): Promise<Todo> => {
+  async (id: Todo['id'], updatedTodo: Partial<Todo>): Promise<Todo> => {
     const response = await fetch(`${path}/items/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updatedTodo),
@@ -28,10 +28,27 @@ const createTodo =
     return await response.json();
   };
 
-const getTodos = (path: string) => async (): Promise<Todo[]> => {
-  const response = await fetch(`${path}/items`);
-  return await response.json();
-};
+const getTodos =
+  (path: string) =>
+  async (filters?: {
+    name?: string;
+    categoryId?: number;
+    priority?: number;
+  }): Promise<Todo[]> => {
+    const params = new URLSearchParams();
+    if (filters?.name) {
+      params.append('search', filters.name);
+    }
+    if (filters?.categoryId) {
+      params.append('categories', filters.categoryId.toString());
+    }
+    if (filters?.priority !== undefined) {
+      params.append('priority', filters.priority.toString());
+    }
+
+    const response = await fetch(`${path}/items?${params.toString()}`);
+    return await response.json();
+  };
 
 const addCategory =
   (path: string) =>
