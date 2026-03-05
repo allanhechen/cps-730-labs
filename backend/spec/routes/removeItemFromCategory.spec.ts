@@ -16,7 +16,7 @@ test('it removes item from category correctly', async () => {
         params: { itemId },
         body: { categoryId },
     } as any;
-    const res = { sendStatus: jest.fn() } as any;
+    const res = { send: jest.fn() } as any;
 
     await removeItemFromCategory(req, res);
 
@@ -26,6 +26,5 @@ test('it removes item from category correctly', async () => {
         categoryId,
     ]);
 
-    expect(jest.mocked(res.sendStatus).mock.calls.length).toBe(1);
-    expect(jest.mocked(res.sendStatus).mock.calls[0][0]).toBe(204);
+    expect(jest.mocked(res.send).mock.calls.length).toBe(1);
 });

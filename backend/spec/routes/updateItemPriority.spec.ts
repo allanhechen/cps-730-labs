@@ -17,7 +17,7 @@ test('it updates item priority correctly', async () => {
         params: { id },
         body: { priority },
     } as any;
-    const res = { sendStatus: jest.fn() } as any;
+    const res = { send: jest.fn() } as any;
 
     await updateItemPriority(req, res);
 
@@ -27,6 +27,5 @@ test('it updates item priority correctly', async () => {
         priority,
     ]);
 
-    expect(jest.mocked(res.sendStatus).mock.calls.length).toBe(1);
-    expect(jest.mocked(res.sendStatus).mock.calls[0][0]).toBe(204);
+    expect(jest.mocked(res.send).mock.calls.length).toBe(1);
 });

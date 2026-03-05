@@ -1,34 +1,56 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import ItemDisplay from './ItemDisplay';
 import AddItemForm from './AddItemForm';
-import type { Todo } from '@todo-app/shared';
+import type { Category, Todo } from '@todo-app/shared';
 import api from '../api';
+import AddCategoryForm from './AddCategoryForm';
+import FilterForm, { type Filters } from './FilterForm';
 
 function TodoListCard() {
   const [items, setItems] = useState<Todo[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filters, setFilters] = useState<Filters>({ name: '' });
 
-  useEffect(() => {
-    async function loadData() {
-      const items = await api.getTodos();
-      setItems(items);
-    }
-
-    loadData();
+  const loadItems = useCallback(async (currentFilters: Filters) => {
+    const items = await api.getTodos(currentFilters);
+    setItems(items);
   }, []);
 
-  const onNewItem = useCallback(
-    (newItem: Todo) => {
-      setItems([...items, newItem]);
+  useEffect(() => {
+    async function loadInitialData() {
+      const categories = await api.getCategories();
+      setCategories(categories);
+    }
+
+    loadInitialData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      await loadItems(filters);
+    }
+    fetchData();
+  }, [filters, loadItems]);
+
+  const onNewCategory = useCallback(
+    (category: Category) => {
+      setCategories([...categories, category]);
     },
-    [items],
+    [categories],
+  );
+
+  const onNewItem = useCallback(
+    () => {
+      loadItems(filters);
+    },
+    [filters, loadItems],
   );
 
   const onItemUpdate = useCallback(
-    (item: Todo) => {
-      const index = items.findIndex((i) => i.id === item.id);
-      setItems([...items.slice(0, index), item, ...items.slice(index + 1)]);
+    () => {
+      loadItems(filters);
     },
-    [items],
+    [filters, loadItems],
   );
 
   const onItemRemoval = useCallback(
@@ -43,13 +65,17 @@ function TodoListCard() {
 
   return (
     <Fragment>
+      <AddCategoryForm onNewCategory={onNewCategory} />
       <AddItemForm onNewItem={onNewItem} />
+      <hr />
+      <FilterForm categories={categories} onFilterChange={setFilters} />
       {items.length === 0 && (
-        <p className="text-center">No items yet! Add one above!</p>
+        <p className="text-center">No items match your criteria!</p>
       )}
       {items.map((item) => (
         <ItemDisplay
           item={item}
+          categories={categories}
           key={item.id}
           onItemUpdate={onItemUpdate}
           onItemRemoval={onItemRemoval}

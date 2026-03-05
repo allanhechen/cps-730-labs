@@ -5,6 +5,6 @@ export default async (req: Request, res: Response) => {
     const id = req.params.id;
     const priority = req.body.priority;
 
-    await db.updateItemPriority(id as string, priority);
-    res.sendStatus(204);
+    const item = await db.updateItemPriority(id as string, priority);
+    res.send(item);
 };

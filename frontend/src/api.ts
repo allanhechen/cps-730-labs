@@ -1,4 +1,4 @@
-import type { Todo, Category, Priority } from '@todo-app/shared';
+import type { Todo, Category } from '@todo-app/shared';
 
 const deleteTodo =
   (path: string) =>
@@ -8,7 +8,7 @@ const deleteTodo =
 
 const updateTodo =
   (path: string) =>
-  async (id: Todo['id'], updatedTodo: Todo): Promise<Todo> => {
+  async (id: Todo['id'], updatedTodo: Partial<Todo>): Promise<Todo> => {
     const response = await fetch(`${path}/items/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updatedTodo),
@@ -19,23 +19,41 @@ const updateTodo =
 
 const createTodo =
   (path: string) =>
-  async (name: Todo['name']): Promise<void> => {
-    await fetch(`${path}/items`, {
+  async (name: Todo['name']): Promise<Todo> => {
+    const response = await fetch(`${path}/items`, {
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: { 'Content-Type': 'application/json' },
     });
+    return await response.json();
   };
 
-const getTodos = (path: string) => async (): Promise<Todo[]> => {
-  const response = await fetch(`${path}/items`);
-  return await response.json();
-};
+const getTodos =
+  (path: string) =>
+  async (filters?: {
+    name?: string;
+    categoryId?: number;
+    priority?: number;
+  }): Promise<Todo[]> => {
+    const params = new URLSearchParams();
+    if (filters?.name) {
+      params.append('search', filters.name);
+    }
+    if (filters?.categoryId) {
+      params.append('categories', filters.categoryId.toString());
+    }
+    if (filters?.priority !== undefined) {
+      params.append('priority', filters.priority.toString());
+    }
+
+    const response = await fetch(`${path}/items?${params.toString()}`);
+    return await response.json();
+  };
 
 const addCategory =
   (path: string) =>
   async (name: Category['name']): Promise<Category> => {
-    const response = await fetch(`${path}/items`, {
+    const response = await fetch(`${path}/categories`, {
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: { 'Content-Type': 'application/json' },
@@ -51,22 +69,24 @@ const getCategories = (path: string) => async (): Promise<Category[]> => {
 
 const addItemToCategory =
   (path: string) =>
-  async (todoId: Todo['id'], categoryId: Category['id']): Promise<void> => {
-    await fetch(`${path}/items/${todoId}/categories`, {
+  async (todoId: Todo['id'], categoryId: Category['id']): Promise<Todo> => {
+    const response = await fetch(`${path}/items/${todoId}/categories`, {
       method: 'POST',
       body: JSON.stringify({ categoryId }),
       headers: { 'Content-Type': 'application/json' },
     });
+    return await response.json();
   };
 
 const removeItemFromCategory =
   (path: string) =>
-  async (todoId: Todo['id'], categoryId: Category['id']): Promise<void> => {
-    await fetch(`${path}/items/${todoId}/categories`, {
+  async (todoId: Todo['id'], categoryId: Category['id']): Promise<Todo> => {
+    const repsonse = await fetch(`${path}/items/${todoId}/categories`, {
       method: 'DELETE',
       body: JSON.stringify({ categoryId }),
       headers: { 'Content-Type': 'application/json' },
     });
+    return await repsonse.json();
   };
 
 const init = (path: string) => ({

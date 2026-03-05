@@ -58,20 +58,22 @@ async function addItemToCategory(
     itemId: Todo['id'],
     categoryId: Category['id'],
 ) {
-    db.run(
+    await db.run(
         'INSERT INTO todo_item_categories (todoId, categoryId) VALUES (?, ?)',
         [itemId, categoryId],
     );
+    return await getItem(itemId);
 }
 
 async function removeItemFromCategory(
     itemId: Todo['id'],
     categoryId: Category['id'],
 ) {
-    db.run('DELETE FROM todo_item_categories WHERE todoId=? AND categoryId=?', [
-        itemId,
-        categoryId,
-    ]);
+    await db.run(
+        'DELETE FROM todo_item_categories WHERE todoId=? AND categoryId=?',
+        [itemId, categoryId],
+    );
+    return await getItem(itemId);
 }
 
 async function getItems(filters?: {
@@ -207,14 +209,12 @@ async function removeItem(id: Todo['id']): Promise<void> {
     await db.run('DELETE FROM todo_items WHERE id = ?', [id]);
 }
 
-async function updateItemPriority(
-    id: Todo['id'],
-    priority: Priority,
-): Promise<void> {
+async function updateItemPriority(id: Todo['id'], priority: Priority) {
     await db.run('UPDATE todo_items SET priority=? WHERE id = ?', [
         priority,
         id,
     ]);
+    return await getItem(id);
 }
 
 export default {

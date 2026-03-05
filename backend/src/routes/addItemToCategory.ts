@@ -5,6 +5,6 @@ export default async (req: Request, res: Response) => {
     const itemId = req.params.itemId;
     const categoryId = req.body.categoryId;
 
-    await db.addItemToCategory(itemId as string, categoryId);
-    res.sendStatus(204);
+    const item = await db.addItemToCategory(itemId as string, categoryId);
+    res.send(item);
 };
