@@ -10,6 +10,8 @@ RUN yarn install --frozen-lockfile
 COPY shared/ ./shared/
 COPY frontend/ ./frontend/
 
+RUN rm frontend/.env
+
 RUN yarn workspace @todo-app/shared build
 RUN yarn workspace frontend build
 
