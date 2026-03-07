@@ -101,9 +101,7 @@ const init = (path: string) => ({
   addItemToCategory: addItemToCategory(path),
   removeItemFromCategory: removeItemFromCategory(path),
 });
-let api: ReturnType<typeof init> = init('http://localhost:3000'); // TODO: load from env or similar
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'PLACEHOLDER_URL';
+const api: ReturnType<typeof init> = init(BASE_URL);
 
-export const setup = (path: string) => {
-  api = init(path);
-};
 export default api;

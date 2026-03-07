@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import api from './api';
 import { Priority } from '@todo-app/shared';
 
-global.fetch = vi.fn();
+(globalThis as any).fetch = vi.fn();
 
 describe('API URL parameter generation', () => {
   beforeEach(() => {
