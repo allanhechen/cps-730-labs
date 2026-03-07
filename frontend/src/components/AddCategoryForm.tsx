@@ -17,7 +17,9 @@ function AddCategoryForm({ onNewCategory }: AddCategoryFormProps) {
     setSubmitting(true);
 
     const category = await api.addCategory(newCategory);
-    onNewCategory(category);
+    if (category) {
+      onNewCategory(category);
+    }
     setSubmitting(false);
     setNewCategory('');
   };

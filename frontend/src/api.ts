@@ -52,13 +52,15 @@ const getTodos =
 
 const addCategory =
   (path: string) =>
-  async (name: Category['name']): Promise<Category> => {
+  async (name: Category['name']): Promise<Category | null> => {
     const response = await fetch(`${path}/categories`, {
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: { 'Content-Type': 'application/json' },
     });
-
+    if (!response.ok) {
+      return null;
+    }
     return await response.json();
   };
 
