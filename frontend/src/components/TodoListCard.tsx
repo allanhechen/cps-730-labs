@@ -5,6 +5,7 @@ import type { Category, Todo } from '@todo-app/shared';
 import api from '../api';
 import AddCategoryForm from './AddCategoryForm';
 import FilterForm, { type Filters } from './FilterForm';
+import { sortTodos } from '../utils.ts/sortTodos';
 
 function TodoListCard() {
   const [items, setItems] = useState<Todo[]>([]);
@@ -13,7 +14,8 @@ function TodoListCard() {
 
   const loadItems = useCallback(async (currentFilters: Filters) => {
     const items = await api.getTodos(currentFilters);
-    setItems(items);
+    const sortedItems = sortTodos(items);
+    setItems(sortedItems);
   }, []);
 
   useEffect(() => {
@@ -39,19 +41,13 @@ function TodoListCard() {
     [categories],
   );
 
-  const onNewItem = useCallback(
-    () => {
-      loadItems(filters);
-    },
-    [filters, loadItems],
-  );
+  const onNewItem = useCallback(() => {
+    loadItems(filters);
+  }, [filters, loadItems]);
 
-  const onItemUpdate = useCallback(
-    () => {
-      loadItems(filters);
-    },
-    [filters, loadItems],
-  );
+  const onItemUpdate = useCallback(() => {
+    loadItems(filters);
+  }, [filters, loadItems]);
 
   const onItemRemoval = useCallback(
     (item: Todo) => {
