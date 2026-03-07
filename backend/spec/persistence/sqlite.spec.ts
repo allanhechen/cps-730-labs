@@ -2,7 +2,7 @@ import fs from 'fs';
 import db from '../../src/persistence/sqlite';
 import { Priority, type Todo } from '@todo-app/shared';
 
-const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
+const location = './test.db';
 
 const ITEM: Todo = {
     id: '7aef3d7c-d301-4846-8358-2a91ec9d6be3',
@@ -19,13 +19,19 @@ beforeEach(() => {
     }
 });
 
+afterEach(() => {
+    if (fs.existsSync(location)) {
+        fs.unlinkSync(location);
+    }
+});
+
 describe('todo items', () => {
     test('it initializes correctly', async () => {
-        await db.init();
+        await db.init(location);
     });
 
     test('it can store and retrieve items', async () => {
-        await db.init();
+        await db.init(location);
 
         await db.storeItem(ITEM);
 
@@ -35,7 +41,7 @@ describe('todo items', () => {
     });
 
     test('it can update an existing item', async () => {
-        await db.init();
+        await db.init(location);
 
         const initialItems = await db.getItems();
         expect(initialItems.length).toBe(0);
@@ -50,7 +56,7 @@ describe('todo items', () => {
     });
 
     test('it can remove an existing item', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM);
 
         await db.removeItem(ITEM.id);
@@ -60,7 +66,7 @@ describe('todo items', () => {
     });
 
     test('it can get a single item', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM);
 
         const item = await db.getItem(ITEM.id);
@@ -68,7 +74,7 @@ describe('todo items', () => {
     });
 
     test('it can filter by search', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM);
         await db.storeItem({ ...ITEM, id: '2', name: 'Another' });
 
@@ -82,7 +88,7 @@ describe('todo items', () => {
     });
 
     test('it can filter by priority', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM); // Priority.NONE (0)
         await db.storeItem({
             ...ITEM,
@@ -101,7 +107,7 @@ describe('todo items', () => {
     });
 
     test('it can filter by categories', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM); // id: 7aef3d7c-d301-4846-8358-2a91ec9d6be3
         await db.storeItem({ ...ITEM, id: '2', name: 'Item 2' });
 
@@ -124,7 +130,7 @@ describe('todo items', () => {
     });
 
     test('it returns all categories for filtered items', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM);
         await db.addCategory('cat1'); // 1
         await db.addCategory('cat2'); // 2
@@ -143,7 +149,7 @@ describe('todo items', () => {
 
 describe('categories', () => {
     it('should be able to create categories and list them', async () => {
-        await db.init();
+        await db.init(location);
         await db.addCategory('my category');
         await db.addCategory('my second category');
         const categories = await db.getCategories();
@@ -156,7 +162,7 @@ describe('categories', () => {
     });
 
     it('should be able to add items to categories', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM);
         await db.addCategory('my category');
         await db.addCategory('my second category');
@@ -176,7 +182,7 @@ describe('categories', () => {
     });
 
     it('should be able to delete items with categories', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM);
         await db.addCategory('my category');
         await db.addCategory('my second category');
@@ -189,7 +195,7 @@ describe('categories', () => {
 
 describe('priorities', () => {
     it('should be able to update item priority', async () => {
-        await db.init();
+        await db.init(location);
         await db.storeItem(ITEM);
 
         await db.updateItemPriority(ITEM.id, Priority.HIGH);
