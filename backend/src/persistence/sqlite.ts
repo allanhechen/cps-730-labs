@@ -1,19 +1,14 @@
-// TODO: use dynamic import or bootstrap
-import dotenv from 'dotenv';
-dotenv.config();
-
 import sqlite3 from 'sqlite3';
 sqlite3.verbose();
 import { open, type Database } from 'sqlite';
 import fs from 'fs';
-const location = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
 import path from 'path';
 import type { Category, Todo } from '@todo-app/shared';
 import { Priority } from '@todo-app/shared';
 
 let db: Database;
 
-async function init(): Promise<void> {
+async function init(location: string): Promise<void> {
     const dirName = path.dirname(location);
     if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName, { recursive: true });

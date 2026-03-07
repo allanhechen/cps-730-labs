@@ -10,15 +10,24 @@ services:
     networks:
       - todo-network
 
-  # backend:
-  #   build:
-  #     context: .
-  #     dockerfile: backend/Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - todo-network
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - CLIENT_ORIGIN=http://localhost:8080
+      - SQLITE_DB_LOCATION=/app/data/todo.db
+    volumes:
+      - todo-db:/app/data
+    networks:
+      - todo-network
 
 networks:
   todo-network:
     driver: bridge
+
+volumes:
+  todo-db:
