@@ -1,0 +1,10 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu/todo-app
+hooks:
+  AfterInstall:
+    - location: scripts/start_docker.sh
+      timeout: 300
+      runas: ubuntu
