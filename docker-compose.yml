@@ -6,7 +6,7 @@ services:
     ports:
       - '8081:80'
     environment:
-      - API_URL=http://localhost:3001
+      - API_URL=http://18.226.88.223:3001
     networks:
       - todo-network
 
@@ -18,7 +18,7 @@ services:
       - '3001:3000'
     environment:
       - PORT=3000
-      - CLIENT_ORIGIN=http://localhost:8081
+      - CLIENT_ORIGIN=http://18.226.88.223:8081
       - SQLITE_DB_LOCATION=/app/data/todo.db
     volumes:
       - todo-db:/app/data
