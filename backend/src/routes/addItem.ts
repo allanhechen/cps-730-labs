@@ -12,6 +12,6 @@ export default async (req: Request, res: Response) => {
         categories: [],
     };
 
-    await db.storeItem(item);
+    await db.storeItem(item, (req as any).user.id);
     res.send(item);
 };

@@ -1,9 +1,11 @@
-export enum Priority {
-  NONE = 0,
-  LOW = 3,
-  MEDIUM = 5,
-  HIGH = 7,
-}
+export const Priority = {
+  NONE: 0,
+  LOW: 3,
+  MEDIUM: 5,
+  HIGH: 7,
+} as const;
+
+export type Priority = typeof Priority[keyof typeof Priority];
 
 export interface Category {
   id: number;

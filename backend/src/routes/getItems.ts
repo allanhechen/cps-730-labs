@@ -1,5 +1,6 @@
 import db from '../persistence/index.js';
 import type { Request, Response } from 'express';
+import { Priority } from '@todo-app/shared';
 
 export default async (req: Request, res: Response) => {
     const filters: any = {};
@@ -12,7 +13,7 @@ export default async (req: Request, res: Response) => {
     if (typeof priority === 'string') {
         const p = parseInt(priority);
         if (!isNaN(p)) {
-            filters.priority = p;
+            filters.priority = p as Priority;
         }
     }
 
@@ -29,6 +30,6 @@ export default async (req: Request, res: Response) => {
         }
     }
 
-    const items = await db.getItems(filters);
+    const items = await db.getItems((req as any).user.id, filters);
     res.send(items);
 };

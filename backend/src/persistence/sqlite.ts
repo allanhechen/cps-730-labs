@@ -20,7 +20,10 @@ async function init(location: string): Promise<void> {
     });
 
     await db.run(
-        'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean, priority integer, utcDueDate text)',
+        'CREATE TABLE IF NOT EXISTS users (id varchar(255) primary key, email varchar(255), name varchar(255))',
+    );
+    await db.run(
+        'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean, priority integer, utcDueDate text, user_id varchar(255) references users)',
     );
     await db.run(
         'CREATE TABLE IF NOT EXISTS categories (id integer primary key, name varchar(255) UNIQUE)',
@@ -32,6 +35,19 @@ async function init(location: string): Promise<void> {
 
 async function teardown(): Promise<void> {
     await db.close();
+}
+
+async function getOrCreateUser(profile: { id: string; email: string; name: string }) {
+    let user = await db.get('SELECT * FROM users WHERE id = ?', [profile.id]);
+    if (!user) {
+        await db.run('INSERT INTO users (id, email, name) VALUES (?, ?, ?)', [profile.id, profile.email, profile.name]);
+        user = await db.get('SELECT * FROM users WHERE id = ?', [profile.id]);
+    }
+    return user;
+}
+
+async function getUserById(id: string) {
+    return await db.get('SELECT * FROM users WHERE id = ?', [id]);
 }
 
 async function getCategories() {
@@ -52,26 +68,28 @@ async function addCategory(name: Category['name']): Promise<number> {
 async function addItemToCategory(
     itemId: Todo['id'],
     categoryId: Category['id'],
+    userId: string,
 ) {
     await db.run(
         'INSERT INTO todo_item_categories (todoId, categoryId) VALUES (?, ?)',
         [itemId, categoryId],
     );
-    return await getItem(itemId);
+    return await getItem(itemId, userId);
 }
 
 async function removeItemFromCategory(
     itemId: Todo['id'],
     categoryId: Category['id'],
+    userId: string,
 ) {
     await db.run(
         'DELETE FROM todo_item_categories WHERE todoId=? AND categoryId=?',
         [itemId, categoryId],
     );
-    return await getItem(itemId);
+    return await getItem(itemId, userId);
 }
 
-async function getItems(filters?: {
+async function getItems(userId: string, filters?: {
     search?: string;
     priority?: Priority;
     categories?: number[];
@@ -89,6 +107,9 @@ async function getItems(filters?: {
 
     const conditions: string[] = [];
     const params: any[] = [];
+
+    conditions.push('todo_items.user_id = ?');
+    params.push(userId);
 
     if (filters) {
         if (filters.search) {
@@ -138,7 +159,7 @@ async function getItems(filters?: {
     return Object.values(result);
 }
 
-async function getItem(id: Todo['id']) {
+async function getItem(id: Todo['id'], userId: string) {
     // TODO: don't duplicate this
     const rows = await db.all(
         `SELECT 
@@ -151,8 +172,8 @@ async function getItem(id: Todo['id']) {
             categories.name as categoryName 
         FROM todo_items LEFT JOIN todo_item_categories ON todo_items.id = todo_item_categories.todoId 
         LEFT JOIN categories ON todo_item_categories.categoryId = categories.id
-        WHERE todo_items.id=?`,
-        [id],
+        WHERE todo_items.id=? AND todo_items.user_id=?`,
+        [id, userId],
     );
 
     const result = rows.reduce<Record<string, Todo>>((acc, curr) => {
@@ -179,42 +200,46 @@ async function getItem(id: Todo['id']) {
     return result[id];
 }
 
-async function storeItem(item: Todo): Promise<void> {
+async function storeItem(item: Todo, userId: string): Promise<void> {
     await db.run(
-        'INSERT INTO todo_items (id, name, completed, priority, utcDueDate) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO todo_items (id, name, completed, priority, utcDueDate, user_id) VALUES (?, ?, ?, ?, ?, ?)',
         [
             item.id,
             item.name,
             item.completed ? 1 : 0,
             item.priority,
             item.utcDueDate,
+            userId,
         ],
     );
 }
 
-async function updateItem(id: Todo['id'], item: Todo): Promise<void> {
+async function updateItem(id: Todo['id'], item: Todo, userId: string): Promise<void> {
     await db.run(
-        'UPDATE todo_items SET name=?, completed=?, priority=?, utcDueDate=? WHERE id = ?',
-        [item.name, item.completed ? 1 : 0, item.priority, item.utcDueDate, id],
+        'UPDATE todo_items SET name=?, completed=?, priority=?, utcDueDate=? WHERE id = ? AND user_id = ?',
+        [item.name, item.completed ? 1 : 0, item.priority, item.utcDueDate, id, userId],
     );
 }
 
-async function removeItem(id: Todo['id']): Promise<void> {
+async function removeItem(id: Todo['id'], userId: string): Promise<void> {
     await db.run('DELETE FROM todo_item_categories WHERE todoId = ?', [id]);
-    await db.run('DELETE FROM todo_items WHERE id = ?', [id]);
+    await db.run('DELETE FROM todo_items WHERE id = ? AND user_id = ?', [id, userId]);
 }
 
-async function updateItemPriority(id: Todo['id'], priority: Priority) {
-    await db.run('UPDATE todo_items SET priority=? WHERE id = ?', [
+async function updateItemPriority(id: Todo['id'], priority: Priority, userId: string) {
+    await db.run('UPDATE todo_items SET priority=? WHERE id = ? AND user_id = ?', [
         priority,
         id,
+        userId,
     ]);
-    return await getItem(id);
+    return await getItem(id, userId);
 }
 
 export default {
     init,
     teardown,
+    getOrCreateUser,
+    getUserById,
     getItems,
     getItem,
     storeItem,

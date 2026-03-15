@@ -3,3 +3,5 @@ app/Dockerfile
 sqlite.db
 dist
 *.tsbuildinfo
+.env
+backend/.env

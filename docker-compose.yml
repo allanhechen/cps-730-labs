@@ -19,7 +19,11 @@ services:
     environment:
       - PORT=3000
       - CLIENT_ORIGIN=http://18.226.88.223:8081
+      - BACKEND_URL=http://18.226.88.223:3001
       - SQLITE_DB_LOCATION=/app/data/todo.db
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - todo-db:/app/data
     networks:

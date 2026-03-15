@@ -13,15 +13,25 @@ function TodoListCard() {
   const [filters, setFilters] = useState<Filters>({ name: '' });
 
   const loadItems = useCallback(async (currentFilters: Filters) => {
-    const items = await api.getTodos(currentFilters);
-    const sortedItems = sortTodos(items);
-    setItems(sortedItems);
+    try {
+      const items = await api.getTodos(currentFilters);
+      const sortedItems = sortTodos(items);
+      setItems(sortedItems);
+    } catch (err) {
+      console.error('Failed to load items:', err);
+      setItems([]);
+    }
   }, []);
 
   useEffect(() => {
     async function loadInitialData() {
-      const categories = await api.getCategories();
-      setCategories(categories);
+      try {
+        const categories = await api.getCategories();
+        setCategories(categories);
+      } catch (err) {
+        console.error('Failed to load categories:', err);
+        setCategories([]);
+      }
     }
 
     loadInitialData();

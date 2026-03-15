@@ -53,7 +53,7 @@ function ItemDisplay({
     e.preventDefault();
     const updatedItem: Todo = {
       ...item,
-      priority: parseInt(e.target.value),
+      priority: parseInt(e.target.value) as Priority,
     };
     const response = await api.updateTodo(item.id, updatedItem);
     onItemUpdate(response);
