@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import passport from 'passport';
+import session from 'express-session';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
 import db from './persistence/index';
 import getItems from './routes/getItems';
@@ -18,28 +21,111 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const DB_LOCATION = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID!,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    callbackURL: `${BACKEND_URL}/auth/google/callback`
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      const user = await db.getOrCreateUser({
+        id: profile.id,
+        email: profile.emails?.[0]?.value || '',
+        name: profile.displayName
+      });
+      done(null, user);
+    } catch (err) {
+      done(err);
+    }
+  }
+));
+
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await db.getUserById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
 
 const app = express();
 
 app.use(
     cors({
         origin: CLIENT_ORIGIN,
+        credentials: true,
     }),
 );
 
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false,        // true only in production with HTTPS
+    sameSite: 'lax',     // 'lax' for localhost, 'none' for cross-site in production
+  }
+}));
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.json());
 
-app.get('/items', getItems);
-app.post('/items', addItem);
-app.put('/items/:id', updateItem);
-app.delete('/items/:id', deleteItem);
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-app.get('/categories', getCategories);
-app.post('/categories', addCategory);
-app.post('/items/:itemId/categories', addItemToCategory);
-app.delete('/items/:itemId/categories', removeItemFromCategory);
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    res.redirect(CLIENT_ORIGIN);
+  }
+);
 
-app.put('/items/:id/priority', updateItemPriority);
+app.get('/auth/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      res.status(500).json({ error: 'Logout failed' });
+    } else {
+      res.json({ success: true });
+    }
+  });
+});
+
+app.get('/auth/user', (req, res) => {
+  if (req.user) {
+    res.json(req.user);
+  } else {
+    res.status(401).json({ error: 'Not authenticated' });
+  }
+});
+
+const requireAuth = (req: any, res: any, next: any) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ error: 'Authentication required' });
+};
+
+app.get('/items', requireAuth, getItems);
+app.post('/items', requireAuth, addItem);
+app.put('/items/:id', requireAuth, updateItem);
+app.delete('/items/:id', requireAuth, deleteItem);
+
+app.get('/categories', requireAuth, getCategories);
+app.post('/categories', requireAuth, addCategory);
+app.post('/items/:itemId/categories', requireAuth, addItemToCategory);
+app.delete('/items/:itemId/categories', requireAuth, removeItemFromCategory);
+
+app.put('/items/:id/priority', requireAuth, updateItemPriority);
 
 db.init(DB_LOCATION)
     .then(() => {

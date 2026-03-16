@@ -3,7 +3,7 @@ import type { Todo, Category } from '@todo-app/shared';
 const deleteTodo =
   (path: string) =>
   async (id: Todo['id']): Promise<void> => {
-    await fetch(`${path}/items/${id}`, { method: 'DELETE' });
+    await fetch(`${path}/items/${id}`, { method: 'DELETE', credentials: 'include' });
   };
 
 const updateTodo =
@@ -13,6 +13,7 @@ const updateTodo =
       method: 'PUT',
       body: JSON.stringify(updatedTodo),
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
     return await response.json();
   };
@@ -24,6 +25,7 @@ const createTodo =
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
     return await response.json();
   };
@@ -46,7 +48,7 @@ const getTodos =
       params.append('priority', filters.priority.toString());
     }
 
-    const response = await fetch(`${path}/items?${params.toString()}`);
+    const response = await fetch(`${path}/items?${params.toString()}`, { credentials: 'include' });
     return await response.json();
   };
 
@@ -57,6 +59,7 @@ const addCategory =
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
     if (!response.ok) {
       return null;
@@ -65,7 +68,7 @@ const addCategory =
   };
 
 const getCategories = (path: string) => async (): Promise<Category[]> => {
-  const response = await fetch(`${path}/categories`);
+  const response = await fetch(`${path}/categories`, { credentials: 'include' });
   return await response.json();
 };
 
@@ -76,6 +79,7 @@ const addItemToCategory =
       method: 'POST',
       body: JSON.stringify({ categoryId }),
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
     return await response.json();
   };
@@ -87,9 +91,22 @@ const removeItemFromCategory =
       method: 'DELETE',
       body: JSON.stringify({ categoryId }),
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
     return await repsonse.json();
   };
+
+const getUser = (path: string) => async () => {
+  const response = await fetch(`${path}/auth/user`, { credentials: 'include' });
+  if (response.ok) {
+    return await response.json();
+  }
+  return null;
+};
+
+const logout = (path: string) => async () => {
+  await fetch(`${path}/auth/logout`, { credentials: 'include' });
+};
 
 const init = (path: string) => ({
   deleteTodo: deleteTodo(path),
@@ -100,6 +117,8 @@ const init = (path: string) => ({
   getCategories: getCategories(path),
   addItemToCategory: addItemToCategory(path),
   removeItemFromCategory: removeItemFromCategory(path),
+  getUser: getUser(path),
+  logout: logout(path),
 });
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'PLACEHOLDER_URL';
 const api: ReturnType<typeof init> = init(BASE_URL);
