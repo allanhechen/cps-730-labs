@@ -26,11 +26,65 @@ async function init(location: string): Promise<void> {
         'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean, priority integer, utcDueDate text, user_id varchar(255) references users)',
     );
     await db.run(
-        'CREATE TABLE IF NOT EXISTS categories (id integer primary key, name varchar(255) UNIQUE)',
+        'CREATE TABLE IF NOT EXISTS categories (id integer primary key, name varchar(255), user_id varchar(255) references users, UNIQUE(name, user_id))',
     );
     await db.run(
         'CREATE TABLE IF NOT EXISTS todo_item_categories (id integer primary key, todoId varchar(36) references todo_items, categoryId integer references categories)',
     );
+
+    const todoItemsColumns = await db.all<{ name: string }[]>(
+        'PRAGMA table_info(todo_items)',
+    );
+    const hasUserIdColumn = todoItemsColumns.some((column) => column.name === 'user_id');
+    if (!hasUserIdColumn) {
+        await db.run('ALTER TABLE todo_items ADD COLUMN user_id varchar(255) references users');
+    }
+
+    const categoryColumns = await db.all<{ name: string }[]>(
+        'PRAGMA table_info(categories)',
+    );
+    const hasCategoryUserIdColumn = categoryColumns.some(
+        (column) => column.name === 'user_id',
+    );
+
+    if (!hasCategoryUserIdColumn) {
+        await db.exec('BEGIN TRANSACTION');
+        try {
+            await db.run(
+                'CREATE TABLE categories_new (id integer primary key, name varchar(255), user_id varchar(255) references users, UNIQUE(name, user_id))',
+            );
+            await db.run(
+                'CREATE TABLE todo_item_categories_new (id integer primary key, todoId varchar(36) references todo_items, categoryId integer references categories_new)',
+            );
+
+            await db.run(
+                `INSERT INTO categories_new (name, user_id)
+                 SELECT DISTINCT c.name, ti.user_id
+                 FROM categories c
+                 JOIN todo_item_categories tic ON tic.categoryId = c.id
+                 JOIN todo_items ti ON ti.id = tic.todoId
+                 WHERE ti.user_id IS NOT NULL`,
+            );
+
+            await db.run(
+                `INSERT INTO todo_item_categories_new (todoId, categoryId)
+                 SELECT tic.todoId, cn.id
+                 FROM todo_item_categories tic
+                 JOIN categories c ON c.id = tic.categoryId
+                 JOIN todo_items ti ON ti.id = tic.todoId
+                 JOIN categories_new cn ON cn.name = c.name AND cn.user_id = ti.user_id`,
+            );
+
+            await db.run('DROP TABLE todo_item_categories');
+            await db.run('DROP TABLE categories');
+            await db.run('ALTER TABLE categories_new RENAME TO categories');
+            await db.run('ALTER TABLE todo_item_categories_new RENAME TO todo_item_categories');
+            await db.exec('COMMIT');
+        } catch (err) {
+            await db.exec('ROLLBACK');
+            throw err;
+        }
+    }
 }
 
 async function teardown(): Promise<void> {
@@ -50,17 +104,17 @@ async function getUserById(id: string) {
     return await db.get('SELECT * FROM users WHERE id = ?', [id]);
 }
 
-async function getCategories() {
-    const rows = await db.all('SELECT * FROM categories');
+async function getCategories(userId: string) {
+    const rows = await db.all('SELECT id, name FROM categories WHERE user_id = ?', [userId]);
     return rows.map((item) => ({
         ...item,
     }));
 }
 
-async function addCategory(name: Category['name']): Promise<number> {
+async function addCategory(name: Category['name'], userId: string): Promise<number> {
     const result = await db.get(
-        'INSERT INTO categories (name) VALUES (?) RETURNING id',
-        [name],
+        'INSERT INTO categories (name, user_id) VALUES (?, ?) RETURNING id',
+        [name, userId],
     );
     return result.id;
 }
@@ -70,10 +124,17 @@ async function addItemToCategory(
     categoryId: Category['id'],
     userId: string,
 ) {
-    await db.run(
-        'INSERT INTO todo_item_categories (todoId, categoryId) VALUES (?, ?)',
-        [itemId, categoryId],
+    const result = await db.run(
+        `INSERT INTO todo_item_categories (todoId, categoryId)
+         SELECT ti.id, c.id
+         FROM todo_items ti
+         JOIN categories c ON c.id = ?
+         WHERE ti.id = ? AND ti.user_id = ? AND c.user_id = ?`,
+        [categoryId, itemId, userId, userId],
     );
+    if (result.changes === 0) {
+        throw new Error('Category or item not found for current user');
+    }
     return await getItem(itemId, userId);
 }
 
@@ -83,8 +144,11 @@ async function removeItemFromCategory(
     userId: string,
 ) {
     await db.run(
-        'DELETE FROM todo_item_categories WHERE todoId=? AND categoryId=?',
-        [itemId, categoryId],
+        `DELETE FROM todo_item_categories
+         WHERE todoId = ? AND categoryId = ?
+           AND EXISTS (SELECT 1 FROM todo_items ti WHERE ti.id = ? AND ti.user_id = ?)
+           AND EXISTS (SELECT 1 FROM categories c WHERE c.id = ? AND c.user_id = ?)`,
+        [itemId, categoryId, itemId, userId, categoryId, userId],
     );
     return await getItem(itemId, userId);
 }

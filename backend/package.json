@@ -13,6 +13,7 @@
     },
     "dependencies": {
         "@todo-app/shared": "1.0.0",
+        "connect-sqlite3": "^0.9.13",
         "cors": "^2.8.6",
         "dotenv": "^17.3.1",
         "express": "^4.18.2",

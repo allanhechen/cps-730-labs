@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import passport from 'passport';
 import session from 'express-session';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import connectSqlite3 from 'connect-sqlite3';
 
 import db from './persistence/index';
 import getItems from './routes/getItems';
@@ -20,8 +21,9 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const DB_LOCATION = process.env.SQLITE_DB_LOCATION || '/etc/todos/todo.db';
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:8080';
 const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+const SQLiteStore = connectSqlite3(session);
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID!,
@@ -68,10 +70,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
   saveUninitialized: false,
+  store: new SQLiteStore({ db: 'sessions.db', dir: '/app/data' }),
   cookie: {
     httpOnly: true,
     secure: false,        // true only in production with HTTPS
-    sameSite: 'lax',     // 'lax' for localhost, 'none' for cross-site in production
+    sameSite: 'lax',      // 'lax' for localhost, 'none' for cross-site in production
   }
 }));
 
