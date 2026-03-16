@@ -1,0 +1,33 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - '8081:80'
+    environment:
+      - API_URL=http://18.226.88.223:3001
+    networks:
+      - todo-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - '3001:3000'
+    environment:
+      - PORT=3000
+      - CLIENT_ORIGIN=http://18.226.88.223:8081
+      - SQLITE_DB_LOCATION=/app/data/todo.db
+    volumes:
+      - todo-db:/app/data
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+    driver: bridge
+
+volumes:
+  todo-db:

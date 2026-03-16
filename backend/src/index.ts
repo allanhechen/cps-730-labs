@@ -43,7 +43,7 @@ app.put('/items/:id/priority', updateItemPriority);
 
 db.init(DB_LOCATION)
     .then(() => {
-        app.listen(PORT, () => console.log('Listening on port 3000'));
+        app.listen(PORT, "0.0.0.0", () => console.log('Listening on port 3000'));
     })
     .catch((err) => {
         console.error(err);
