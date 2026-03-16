@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import passport from 'passport';
 import session from 'express-session';
+import sqlite3 from 'sqlite3';
+import { createRequire } from 'node:module';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
 import db from './persistence/index';
@@ -15,6 +17,9 @@ import addCategory from './routes/addCategory';
 import addItemToCategory from './routes/addItemToCategory';
 import removeItemFromCategory from './routes/removeItemFromCategory';
 import updateItemPriority from './routes/updateItemPriority';
+
+const require = createRequire(import.meta.url);
+const sqliteStoreFactory = require('express-session-sqlite').default;
 
 dotenv.config();
 
@@ -64,6 +69,8 @@ app.use(
     }),
 );
 
+
+/*
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
@@ -73,7 +80,32 @@ app.use(session({
     secure: false,        // true only in production with HTTPS
     sameSite: 'lax',     // 'lax' for localhost, 'none' for cross-site in production
   }
-}));
+})); */
+
+
+
+// replacing memory store to accomodate the 3 backends for nginx implementation
+const SQLiteStore = sqliteStoreFactory(session);
+const sessionStore = new SQLiteStore({
+  driver: sqlite3.Database,
+  path: process.env.SESSION_DB_LOCATION || '/app/data/sessions.db',
+  ttl: 24 * 60 * 60 * 1000, // 1 day
+  cleanupInterval: 5 * 60 * 1000, // every 5 min
+});
+
+app.use(
+  session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || 'dev-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false, // localhost over http
+      sameSite: 'lax',
+    },
+  })
+);
 
 
 app.use(passport.initialize());

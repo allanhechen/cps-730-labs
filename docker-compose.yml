@@ -33,6 +33,7 @@ services:
       - CLIENT_ORIGIN=http://localhost:8080
       - BACKEND_URL=http://localhost:8080
       - SQLITE_DB_LOCATION=/app/data/todo.db
+      - SESSION_DB_LOCATION=/app/data/sessions.db
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SESSION_SECRET=${SESSION_SECRET}
@@ -52,6 +53,7 @@ services:
       - CLIENT_ORIGIN=http://localhost:8080
       - BACKEND_URL=http://localhost:8080
       - SQLITE_DB_LOCATION=/app/data/todo.db
+      - SESSION_DB_LOCATION=/app/data/sessions.db
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SESSION_SECRET=${SESSION_SECRET}
@@ -71,6 +73,7 @@ services:
       - CLIENT_ORIGIN=http://localhost:8080
       - BACKEND_URL=http://localhost:8080
       - SQLITE_DB_LOCATION=/app/data/todo.db
+      - SESSION_DB_LOCATION=/app/data/sessions.db
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SESSION_SECRET=${SESSION_SECRET}
