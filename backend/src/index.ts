@@ -112,6 +112,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log(`[${process.env.HOSTNAME}] ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
