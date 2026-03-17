@@ -29,5 +29,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/todo-app
+            # Create the .env file on the server dynamically
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
+            
+            # Restart Docker
             docker compose down
             docker compose up -d --build
