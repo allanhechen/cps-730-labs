@@ -36,6 +36,27 @@ Properties:
 
 An object representing a user-created category. Also identified by a surrogate key, but the name must be unique.
 
+## User
+
+An object representing an authenticated user of the application.
+
+Properties:
+
+- Identified by id provided by google oauth (stored as `id`)
+- Includes google profile information (`email`, `name`)
+- A user owns many Todo items through the `todo_items.user_id` foreign key
+
+## TodoItemCategory
+
+An associative entity that maps Todo items to Categories.
+
+Properties:
+
+- Represents the many-to-many relationship between Todo and Category
+- Stores a `todoId` foreign key to `todo_items`
+- Stores a `categoryId` foreign key to `categories`
+- Allows a single Todo to belong to multiple Categories
+
 ## High-Level Diagram
 
 ![ER Diagram](../static/img/er-diagram.png)
