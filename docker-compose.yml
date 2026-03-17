@@ -30,8 +30,8 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       - PORT=3000
-      - CLIENT_ORIGIN=http://localhost:8080
-      - BACKEND_URL=http://localhost:8080
+      - CLIENT_ORIGIN=http://ec2-18-226-88-223.us-east-2.compute.amazonaws.com:8080
+      - BACKEND_URL=http://ec2-18-226-88-223.us-east-2.compute.amazonaws.com:8080
       - SQLITE_DB_LOCATION=/app/data/todo.db
       - SESSION_DB_LOCATION=/app/data/sessions.db
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -50,8 +50,8 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       - PORT=3000
-      - CLIENT_ORIGIN=http://localhost:8080
-      - BACKEND_URL=http://localhost:8080
+      - CLIENT_ORIGIN=http://ec2-18-226-88-223.us-east-2.compute.amazonaws.com:8080
+      - BACKEND_URL=http://ec2-18-226-88-223.us-east-2.compute.amazonaws.com:8080
       - SQLITE_DB_LOCATION=/app/data/todo.db
       - SESSION_DB_LOCATION=/app/data/sessions.db
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -70,8 +70,8 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       - PORT=3000
-      - CLIENT_ORIGIN=http://localhost:8080
-      - BACKEND_URL=http://localhost:8080
+      - CLIENT_ORIGIN=http://ec2-18-226-88-223.us-east-2.compute.amazonaws.com:8080
+      - BACKEND_URL=http://ec2-18-226-88-223.us-east-2.compute.amazonaws.com:8080
       - SQLITE_DB_LOCATION=/app/data/todo.db
       - SESSION_DB_LOCATION=/app/data/sessions.db
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
