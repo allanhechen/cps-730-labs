@@ -26,6 +26,7 @@ TODO
 1. [Entities - The various entities that exist within the application](./Entities.md)
 2. [Configuration - Environment variables to configure application behavior](./Configuration.md)
 3. [Docker - The build images and the docker compose file](./Docker.md)
+4. [Authentication - Google OAuth 2.0 login flow and session management](./Authentication.md)
 
 ## Motivation
 

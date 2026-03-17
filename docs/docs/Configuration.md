@@ -19,3 +19,6 @@ These are the environment variables that can be used to configure each service.
 | `PORT`               | The port that the backend server will listen to               | `3000`                  |
 | `SQLITE_DB_LOCATION` | The location to store the SQLite database                     | `"/etc/todos/todo.db"`  |
 | `CLIENT_ORIGIN`      | The location of the frontend service used to set CORS headers | `http://localhost:5173` |
+| `GOOGLE_CLIENT_ID`   | Google OAuth client ID used for authentication                | `""`                    |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret used for authentication          | `""`                    |
+| `SESSION_SECRET`     | Secret used to sign and protect user session data             | `""`                    |
