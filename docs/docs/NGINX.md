@@ -12,7 +12,7 @@ sidebar_position: 6
     - The third reason why NGINX was chosen is because it distributes API traffic evenly across three backend replicas using a round-robin algorithm, enabling horizontal scaling without any changes to the application code.
 
 ## 2 NGINX in the Docker Stack
-### Dockerfile ###
+### Dockerfile 
 
 ```js
 FROM nginx:alpine
@@ -20,7 +20,7 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 ```
 The official nginx:alpine base image is used and a custom configuration file replaces the default. 
 
-### Docker Compose Entry ###
+### Docker Compose Entry 
 
 ```yaml
 nginx:
@@ -38,8 +38,8 @@ nginx:
     - todo-network
 ```
 
-## 3 Configuration ##
-### Upstream Block - Load Balancer ###
+## 3 Configuration 
+### Upstream Block - Load Balancer 
 
 ```nginx
 upstream todo_backend {
@@ -80,7 +80,7 @@ server {
 }
 ```
 
-### Routing Rules Explained ###
+### Routing Rules Explained 
 
 | URL Pattern | NGINX Action | Destination & Notes |
 |:---|:---|:---|
@@ -88,7 +88,7 @@ server {
 | `/api/*` | Rewrite: strip `/api` → `proxy_pass` → todo_backend | API calls are load-balanced round-robin across backend1/2/3. The `/api` prefix is an NGINX-only concept — the Express routes never see it. |
 | `/auth/*` | `proxy_pass` → todo_backend (no rewrite) | OAuth redirect URIs must match exactly. Forwarded unchanged so Google's callback URL (`/auth/google/callback`) arrives at Express unmodified. |
 
-### Proxy Headers ###
+### Proxy Headers 
 All three location blocks set the same three proxy headers:
 | Header | Purpose |
 |:---|:---|
@@ -97,7 +97,7 @@ All three location blocks set the same three proxy headers:
 | `X-Forwarded-For` | Appends the client IP to any existing forwarding chain. |
 
 
-## 4 Inter-Service Communication Map ##
+## 4 Inter-Service Communication Map 
 
 | From | To | Address | Purpose |
 |:---|:---|:---|:---|
@@ -110,7 +110,7 @@ All three location blocks set the same three proxy headers:
 | React (browser) | NGINX | `/auth/*` | OAuth login/logout flows |
 
 
-## 5 Request Flow - End to End##
+## 5 Request Flow - End to End
 1. Browser sends GET http://ec2-host:8080/api/items with session cookie.
 2. NGINX receives the request on port 80 (mapped from host 8080).
 3. location /api/ matches → rewrite strips /api → path becomes /items.
