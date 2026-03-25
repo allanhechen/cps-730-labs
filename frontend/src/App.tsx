@@ -27,7 +27,7 @@ function App() {
   };
 
   const handleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'PLACEHOLDER_URL'}/auth/google`;
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`;
   };
 
   const handleLogout = async () => {
