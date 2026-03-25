@@ -69,21 +69,6 @@ app.use(
     }),
 );
 
-
-/*
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: false,        // true only in production with HTTPS
-    sameSite: 'lax',     // 'lax' for localhost, 'none' for cross-site in production
-  }
-})); */
-
-
-
 // replacing memory store to accomodate the 3 backends for nginx implementation
 const SQLiteStore = sqliteStoreFactory(session);
 const sessionStore = new SQLiteStore({
