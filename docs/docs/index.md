@@ -7,20 +7,6 @@ sidebar_position: 1
 Welcome to Group 1's implementation of the TODO app for CPS 730!
 This is a comprehensive set of documentation that aims to bring new developers up to speed, along with giving a high-level overview of how our project works.
 
-TODO
-TODO
-TODO
-
-1. Talk about networking
-2. Talk about the architecture within AWS
-3. Talk about CI
-4. Talk about deployment process
-5. Talk about technical decisions
-
-TODO
-TODO
-TODO
-
 ## Table of Contents
 
 1. [Entities - The various entities that exist within the application](./Entities.md)
