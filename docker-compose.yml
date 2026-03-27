@@ -22,68 +22,25 @@ services:
     networks:
       - todo-network
 
- so the other group gave us a list of stuff we should improve to our code. im responsible for item 1:
-Item 01: Hardcoded Production Domains
-○ Location: docker-compose.yml (Lines 32-33)
-○ Description: Environment variables for origin and backend are hardcoded to
-duckdns.org domains, which limits local setup portability.
-○ Classification: Architecture
-○ Lecture Alignment: Lecture 4 regarding Environment Isolation and Portability. 
-
-How would I go about fixing this.
-
-Reminder this is docker-compose.yml
-services:
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - "8080:80"
-    depends_on:
-      - frontend
-      - backend1
-    networks:
-      - todo-network
-
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    expose:
-      - "80"
-    environment:
-      - API_URL=/api
-    networks:
-      - todo-network
-
-  backend1:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    environment:
-      - PORT=3000
-     
-      - CLIENT_ORIGIN=http://todo-group1.duckdns.org:8080
-      - BACKEND_URL=http://todo-group1.duckdns.org:8080
-      - SQLITE_DB_LOCATION=/app/data/todo.db
-      - SESSION_DB_LOCATION=/app/data/sessions.db
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - SESSION_SECRET=${SESSION_SECRET}
-    expose:
-      - "3000"
-    volumes:
-      - todo-db:/app/data
-    networks:
-      - todo-network
-
-networks:
-  todo-network:
-    driver: bridge
-
-volumes:
-  todo-db:
+  backend1:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      - PORT=3000
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN:-http://localhost:8080}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:8080}
+      - SQLITE_DB_LOCATION=/app/data/todo.db
+      - SESSION_DB_LOCATION=/app/data/sessions.db
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+    expose:
+      - "3000"
+    volumes:
+      - todo-db:/app/data
+    networks:
+      - todo-network
 
 networks:
   todo-network:
