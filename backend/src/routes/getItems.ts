@@ -2,8 +2,25 @@ import db from '../persistence/index.js';
 import type { Request, Response } from 'express';
 import { Priority } from '@todo-app/shared';
 
-export default async (req: Request, res: Response) => {
-    const filters: any = {};
+/** Filter criteria for querying todo items. */
+interface ItemFilters {
+    search?: string;
+    priority?: Priority;
+    categories?: number[];
+}
+
+/** Authenticated request with user information attached by Passport. */
+interface AuthenticatedRequest extends Request {
+    user: { id: string };
+}
+
+/**
+ * GET /items - Retrieves todo items for the authenticated user.
+ * @param req - Express request with optional query params: search (string), priority (number), categories (number or number[]).
+ * @param res - Express response containing the filtered list of todo items.
+ */
+export default async (req: AuthenticatedRequest, res: Response) => {
+    const filters: ItemFilters = {};
     const { search, priority, categories } = req.query;
 
     if (typeof search === 'string') {
@@ -30,6 +47,6 @@ export default async (req: Request, res: Response) => {
         }
     }
 
-    const items = await db.getItems((req as any).user.id, filters);
+    const items = await db.getItems(req.user.id, filters);
     res.send(items);
 };
