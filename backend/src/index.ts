@@ -19,7 +19,7 @@ import removeItemFromCategory from './routes/removeItemFromCategory';
 import updateItemPriority from './routes/updateItemPriority';
 
 const require = createRequire(import.meta.url);
-const SQLiteStoreFactory = require('express-session-sqlite').default;
+const SQLITE_STORE_FACTORY = require('express-session-sqlite').default;
 
 dotenv.config();
 
@@ -70,7 +70,7 @@ app.use(
 );
 
 // replacing memory store to accomodate the 3 backends for nginx implementation
-const SQLiteStore = SQLiteStoreFactory(session);
+const SQLiteStore = SQLITE_STORE_FACTORY(session);
 const sessionStore = new SQLiteStore({
   driver: sqlite3.Database,
   path: process.env.SESSION_DB_LOCATION || '/app/data/sessions.db',
